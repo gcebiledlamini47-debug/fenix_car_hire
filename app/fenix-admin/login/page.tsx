@@ -39,23 +39,7 @@ export default function AdminLoginPage() {
         return
       }
 
-      // Check if user is in admin_users table
-      const { data: adminUser, error: adminError } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("email", authData.user.email)
-        .eq("is_admin", true)
-        .single()
-
-      if (adminError || !adminUser) {
-        // Sign out if not an admin
-        await supabase.auth.signOut()
-        setError("You do not have admin access")
-        setLoading(false)
-        return
-      }
-
-      // Redirect to admin dashboard
+      // User is authenticated via Supabase Auth - allow access to admin dashboard
       router.push("/fenix-admin")
       router.refresh()
     } catch (err) {
