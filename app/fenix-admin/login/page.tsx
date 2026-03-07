@@ -18,35 +18,39 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError("")
 
-    const supabase = createClient()
+    try {
+      const supabase = createClient()
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+      // Check if user exists in admin_users table with matching password
+      const { data: adminUser, error: fetchError } = await supabase
+        .from("admin_users")
+        .select("*")
+        .eq("email", email)
+        .eq("password_hash", password)
+        .eq("is_admin", true)
+        .single()
 
-    if (signInError) {
-      setError("Invalid email or password")
+      if (fetchError || !adminUser) {
+        setError("Invalid email or password")
+        setLoading(false)
+        return
+      }
+
+      // Store admin session in localStorage
+      localStorage.setItem("fenix_admin_session", JSON.stringify({
+        email: adminUser.email,
+        isAdmin: true,
+        loginTime: new Date().toISOString()
+      }))
+
+      // Redirect to admin dashboard
+      router.push("/fenix-admin")
+    } catch (err) {
+      setError("An error occurred. Please try again.")
+      console.error(err)
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Check if user is admin
-    const { data: adminData } = await supabase
-      .from("admin_users")
-      .select("*")
-      .eq("email", email)
-      .single()
-
-    if (!adminData) {
-      await supabase.auth.signOut()
-      setError("You do not have admin access")
-      setLoading(false)
-      return
-    }
-
-    router.push("/fenix-admin")
-    router.refresh()
   }
 
   return (
@@ -122,9 +126,14 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Contact your administrator if you need access
-        </p>
+        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+          <a
+            href="/"
+            className="text-[#00A8E8] hover:text-[#1a4a8d] text-sm transition-colors"
+          >
+            Back to Website
+          </a>
+        </div>
       </div>
     </div>
   )
