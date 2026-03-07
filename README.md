@@ -59,19 +59,77 @@ A modern car rental service website built with Next.js 16, React 19, TypeScript,
 
 ```
 fenix_car_hire/
-├── app/
-│   ├── layout.tsx          # Root layout component
-│   ├── page.tsx            # Home page
-│   ├── globals.css         # Global styles
-│   └── [other pages]/      # Additional pages
-├── components/             # Reusable components
-├── public/                 # Static assets (images, favicon, etc.)
-├── package.json            # Project dependencies
-├── next.config.mjs         # Next.js configuration
-├── tsconfig.json           # TypeScript configuration
-├── tailwind.config.ts      # Tailwind CSS configuration
-└── README.md              # This file
+├── app/                           # Next.js App Router
+│   ├── layout.tsx                # Root layout with Navbar & Footer
+│   ├── page.tsx                  # Home page
+│   ├── globals.css               # Global styles & design tokens
+│   ├── about/page.tsx            # About page
+│   ├── services/page.tsx         # Services listing page
+│   ├── fleet/page.tsx            # Vehicle fleet page
+│   ├── contact/page.tsx          # Contact form & locations
+│   ├── booking/page.tsx          # Booking form page
+│   └── terms/page.tsx            # Terms & conditions
+│
+├── components/                    # Reusable React components
+│   ├── layout/
+│   │   ├── Navbar.tsx           # Navigation component
+│   │   └── Footer.tsx           # Footer with links
+│   │
+│   ├── ui/
+│   │   ├── Section.tsx          # Page section wrapper
+│   │   ├── Card.tsx             # Reusable card component
+│   │   └── Button.tsx           # Styled button component
+│   │
+│   ├── features/
+│   │   ├── HeroSlider.tsx       # Auto-rotating hero slider
+│   │   ├── VehicleGrid.tsx      # Vehicle display grid
+│   │   ├── ServiceCard.tsx      # Service cards display
+│   │   └── RegionCard.tsx       # Regional office cards
+│   │
+│   └── forms/
+│       ├── BookingForm.tsx      # Vehicle booking form
+│       └── ContactForm.tsx      # Contact form
+│
+├── data/                          # Static data & configuration
+│   ├── navigation.ts            # Navigation links config
+│   ├── vehicles.ts              # Fleet vehicles database
+│   ├── services.ts              # Services listing
+│   └── regions.ts               # Regional office information
+│
+├── types/                         # TypeScript type definitions
+│   └── index.ts                 # All interfaces & types
+│
+├── public/                        # Static assets
+│   ├── images/                  # Car images
+│   └── favicon.ico
+│
+├── package.json                   # Dependencies
+├── next.config.mjs              # Next.js configuration
+├── tsconfig.json                # TypeScript config
+├── tailwind.config.ts           # Tailwind CSS config
+├── postcss.config.mjs           # PostCSS config
+├── .eslintrc.json               # ESLint rules
+├── .gitignore                   # Git ignore rules
+└── README.md                    # This file
 ```
+
+## Key Features
+
+- **Home Page**: Auto-rotating hero slider, featured vehicles, services overview, and CTA sections
+- **Vehicle Fleet**: Complete vehicle inventory with specifications, pricing, and booking integration
+- **Service Pages**: Services, about, and detailed information about company offerings
+- **Booking System**: Interactive booking form with vehicle, date, and location selection
+- **Contact Section**: Contact form, regional offices, and FAQ
+- **Responsive Design**: Mobile-first approach, fully responsive on all devices
+- **Dark Color Scheme**: Professional blue (#1a4a8d) and cyan (#00A8E8) branding
+- **Component Architecture**: Modular, reusable components for easy maintenance and scaling
+
+## Data Management
+
+- **Vehicles**: 6 vehicle categories with pricing and features
+- **Services**: 6 core service offerings with detailed descriptions
+- **Regions**: 4 regional offices with contact information
+- **Navigation**: Centralized navigation links configuration
 
 ## Technologies
 
