@@ -78,7 +78,7 @@ export default function Terms() {
               <h2 className="text-2xl font-bold text-[#1a4a8d] mb-4">6. Mileage</h2>
               <p>
                 Daily rentals include 100 kilometers. Weekly rentals include 500 kilometers. Monthly rentals include
-                unlimited kilometers. Excess mileage is charged at TSH 500 per kilometer.
+                unlimited kilometers. Excess mileage is charged at E5 per kilometer.
               </p>
             </div>
 
@@ -86,14 +86,14 @@ export default function Terms() {
               <h2 className="text-2xl font-bold text-[#1a4a8d] mb-4">7. Fuel Policy</h2>
               <p>
                 All vehicles are rented with a full tank of fuel. The vehicle must be returned with a full tank. If
-                returned with less fuel, a refueling charge plus TSH 5,000 administration fee will be applied.
+                returned with less fuel, a refueling charge plus E50 administration fee will be applied.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold text-[#1a4a8d] mb-4">8. Late Return</h2>
               <p>
-                If the vehicle is not returned by the agreed time, a late fee of TSH 50,000 per hour (or TSH 200,000
+                If the vehicle is not returned by the agreed time, a late fee of E100 per hour (or E500
                 per day) will be charged, plus any additional fuel and mileage charges.
               </p>
             </div>
@@ -153,9 +153,9 @@ export default function Terms() {
               <p>
                 For questions or issues regarding these terms and conditions, please contact us at:
                 <br />
-                Phone: +255 756 123 456
+                Phone: +268 24221045
                 <br />
-                Email: info@fenixcarhire.com
+                Email: reception@fenix.co.sz
               </p>
             </div>
 

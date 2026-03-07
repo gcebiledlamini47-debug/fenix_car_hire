@@ -127,16 +127,16 @@ export default function Booking() {
         <p className="mb-6 text-lg">Contact us anytime - we're here to assist you</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="tel:+255756123456"
+            href="tel:+26824221045"
             className="px-6 py-3 bg-white text-[#00A8E8] rounded-lg font-bold hover:bg-gray-100 transition-colors"
           >
-            Call Us: +255 756 123 456
+            Call Us: +268 24221045
           </a>
           <a
-            href="mailto:info@fenixcarhire.com"
+            href="mailto:reception@fenix.co.sz"
             className="px-6 py-3 bg-white text-[#00A8E8] rounded-lg font-bold hover:bg-gray-100 transition-colors"
           >
-            Email: info@fenixcarhire.com
+            Email: reception@fenix.co.sz
           </a>
         </div>
       </Section>
