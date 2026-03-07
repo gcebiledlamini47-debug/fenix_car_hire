@@ -153,7 +153,7 @@ export function BookingForm() {
             <option value="">Select vehicle</option>
             {vehicles.map((vehicle) => (
               <option key={vehicle.id} value={vehicle.name}>
-                {vehicle.name} - ${vehicle.dailyRate}/day
+                {vehicle.name} ({vehicle.category})
               </option>
             ))}
           </select>
