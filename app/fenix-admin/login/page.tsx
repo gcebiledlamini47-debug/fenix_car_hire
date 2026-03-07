@@ -21,30 +21,43 @@ export default function AdminLoginPage() {
     try {
       const supabase = createClient()
 
-      // Check if user exists in admin_users table with matching password
-      const { data: adminUser, error: fetchError } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("email", email)
-        .eq("password_hash", password)
-        .eq("is_admin", true)
-        .single()
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-      if (fetchError || !adminUser) {
+      if (authError) {
+        setError(authError.message)
+        setLoading(false)
+        return
+      }
+
+      if (!authData.user) {
         setError("Invalid email or password")
         setLoading(false)
         return
       }
 
-      // Store admin session in localStorage
-      localStorage.setItem("fenix_admin_session", JSON.stringify({
-        email: adminUser.email,
-        isAdmin: true,
-        loginTime: new Date().toISOString()
-      }))
+      // Check if user is in admin_users table
+      const { data: adminUser, error: adminError } = await supabase
+        .from("admin_users")
+        .select("*")
+        .eq("email", authData.user.email)
+        .eq("is_admin", true)
+        .single()
+
+      if (adminError || !adminUser) {
+        // Sign out if not an admin
+        await supabase.auth.signOut()
+        setError("You do not have admin access")
+        setLoading(false)
+        return
+      }
 
       // Redirect to admin dashboard
       router.push("/fenix-admin")
+      router.refresh()
     } catch (err) {
       setError("An error occurred. Please try again.")
       console.error(err)

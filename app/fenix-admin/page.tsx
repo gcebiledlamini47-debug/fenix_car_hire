@@ -2,65 +2,67 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminHeader } from "@/components/admin/AdminHeader"
 import { VehiclesPanel } from "@/components/admin/VehiclesPanel"
 import { BookingsPanel } from "@/components/admin/BookingsPanel"
 import { MessagesPanel } from "@/components/admin/MessagesPanel"
 import { DashboardPanel } from "@/components/admin/DashboardPanel"
+import type { User } from "@supabase/supabase-js"
 
 export type AdminTab = "dashboard" | "vehicles" | "bookings" | "messages"
-
-interface AdminSession {
-  email: string
-  isAdmin: boolean
-  loginTime: string
-}
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [user, setUser] = useState<{ email: string } | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
-    const checkAuth = () => {
-      // Check for admin session in localStorage
-      const sessionData = localStorage.getItem("fenix_admin_session")
+    const checkAuth = async () => {
+      // Get current session
+      const { data: { user } } = await supabase.auth.getUser()
       
-      if (!sessionData) {
+      if (!user) {
         router.push("/fenix-admin/login")
         return
       }
 
-      try {
-        const session: AdminSession = JSON.parse(sessionData)
-        
-        // Check if session is valid (within 24 hours)
-        const loginTime = new Date(session.loginTime)
-        const now = new Date()
-        const hoursSinceLogin = (now.getTime() - loginTime.getTime()) / (1000 * 60 * 60)
-        
-        if (hoursSinceLogin > 24 || !session.isAdmin) {
-          localStorage.removeItem("fenix_admin_session")
-          router.push("/fenix-admin/login")
-          return
-        }
+      // Check if user is admin
+      const { data: adminUser, error: adminError } = await supabase
+        .from("admin_users")
+        .select("*")
+        .eq("email", user.email)
+        .eq("is_admin", true)
+        .single()
 
-        setUser({ email: session.email })
-        setLoading(false)
-      } catch {
-        localStorage.removeItem("fenix_admin_session")
+      if (adminError || !adminUser) {
+        await supabase.auth.signOut()
         router.push("/fenix-admin/login")
+        return
       }
+
+      setUser(user)
+      setLoading(false)
     }
 
     checkAuth()
-  }, [router])
 
-  const handleLogout = () => {
-    localStorage.removeItem("fenix_admin_session")
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT" || !session) {
+        router.push("/fenix-admin/login")
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router, supabase])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     router.push("/fenix-admin/login")
   }
 
