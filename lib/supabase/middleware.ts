@@ -29,21 +29,14 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Protect admin routes
-  if (request.nextUrl.pathname.startsWith("/fenix-admin") && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/fenix-admin/login"
-    return NextResponse.redirect(url)
-  }
-
-  // Allow access to login page even without auth
+  // Allow access to login page without auth - check this FIRST to avoid redirect loop
   if (request.nextUrl.pathname === "/fenix-admin/login") {
     return supabaseResponse
   }
+
+  // For other admin routes, we use client-side session check instead of Supabase auth
+  // This is because we're using a simple password-based auth stored in localStorage
+  // The admin pages themselves will handle the redirect if not authenticated
 
   return supabaseResponse
 }
