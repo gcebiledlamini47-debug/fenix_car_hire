@@ -29,7 +29,7 @@ export default function Services() {
         <h2 className="text-3xl font-bold text-[#1a4a8d] mb-12 text-center">Special Services</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">✈️ Airport Transfers</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Airport Transfers</h3>
             <p className="text-gray-700 mb-4">
               Convenient airport pickup and drop-off services with professional drivers. We monitor your flight status
               and adjust timing accordingly.
@@ -43,7 +43,7 @@ export default function Services() {
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">🏢 Corporate Packages</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Corporate Packages</h3>
             <p className="text-gray-700 mb-4">
               Customized solutions for businesses with flexible contracts, bulk discounts, and dedicated account
               management.
@@ -57,7 +57,7 @@ export default function Services() {
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">📅 Long-term Rentals</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Long-term Rentals</h3>
             <p className="text-gray-700 mb-4">
               Perfect for extended stays with significant discounts on weekly and monthly rates. Maintenance included.
             </p>
@@ -70,7 +70,7 @@ export default function Services() {
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">🎉 Event Services</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Event Services</h3>
             <p className="text-gray-700 mb-4">
               Full vehicle support for weddings, conferences, and special events. We handle logistics so you can focus
               on your event.
@@ -84,7 +84,7 @@ export default function Services() {
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">🛡️ Insurance & Safety</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Insurance & Safety</h3>
             <p className="text-gray-700 mb-4">
               Comprehensive insurance coverage options with 24/7 roadside assistance and GPS tracking for your
               security.
@@ -98,16 +98,16 @@ export default function Services() {
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">🌐 Regional Coverage</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Regional Coverage</h3>
             <p className="text-gray-700 mb-4">
-              Pick up and drop off at multiple locations across Tanzania. Regional offices ensure convenient service
+              Pick up and drop off at multiple locations across Eswatini. Regional offices ensure convenient service
               nationwide.
             </p>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>✓ 4 regional branches</li>
-              <li>✓ Nationwide coverage</li>
-              <li>✓ One-way rentals</li>
-              <li>✓ Same-day service</li>
+              <li>4 regional branches</li>
+              <li>Nationwide coverage</li>
+              <li>One-way rentals</li>
+              <li>Same-day service</li>
             </ul>
           </Card>
         </div>

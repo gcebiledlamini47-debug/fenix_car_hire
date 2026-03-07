@@ -25,7 +25,7 @@ export default function About() {
             <h2 className="text-3xl font-bold text-[#1a4a8d] mb-4">Our Story</h2>
             <p className="text-gray-700 mb-4">
               Founded in 2015, Fenix Car Hire started with a simple mission: to provide reliable, affordable, and
-              professional car rental services to travelers across Tanzania.
+              professional car rental services to travelers across Eswatini.
             </p>
             <p className="text-gray-700 mb-4">
               What began as a small fleet of vehicles has grown into one of the most trusted car rental companies in the
@@ -49,21 +49,21 @@ export default function About() {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">🎯 Our Mission</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Our Mission</h3>
             <p className="text-gray-700">
               To provide exceptional car rental services that exceed customer expectations, offering the perfect vehicle
               at the right price with professional, friendly service.
             </p>
           </Card>
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">🌟 Our Vision</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Our Vision</h3>
             <p className="text-gray-700">
-              To be the leading car rental company in East Africa, recognized for reliability, innovation, and customer
+              To be the leading car rental company in Eswatini, recognized for reliability, innovation, and customer
               satisfaction.
             </p>
           </Card>
           <Card>
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">💎 Our Principles</h3>
+            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Our Principles</h3>
             <p className="text-gray-700">
               Integrity, reliability, customer focus, and continuous improvement. We're committed to honest dealings,
               maintaining quality, and always listening to our customers.

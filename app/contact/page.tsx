@@ -64,6 +64,13 @@ export default function Contact() {
                   Chat with us on WhatsApp
                 </a>
               </div>
+
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">Facebook</h3>
+                <a href="https://www.facebook.com/share/1Gc2H9AFaJ/" target="_blank" rel="noopener noreferrer" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                  Follow us on Facebook
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -73,7 +80,7 @@ export default function Contact() {
       <Section className="bg-white">
         <h2 className="text-3xl font-bold text-[#1a4a8d] mb-8 text-center">Regional Offices</h2>
         <p className="text-center text-gray-700 mb-10 max-w-2xl mx-auto">
-          Visit any of our regional offices across Tanzania. We're here to serve you with professional service and
+          Visit any of our regional offices across Eswatini. We're here to serve you with professional service and
           support.
         </p>
         <RegionCard />

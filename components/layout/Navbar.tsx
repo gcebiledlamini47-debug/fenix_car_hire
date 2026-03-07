@@ -109,6 +109,14 @@ export function Navbar() {
               >
                 reception@fenix.co.sz
               </a>
+              <a
+                href="https://www.facebook.com/share/1Gc2H9AFaJ/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block px-4 py-2 text-[#00A8E8] hover:text-white transition-colors"
+              >
+                Follow us on Facebook
+              </a>
             </div>
           </div>
         </div>
