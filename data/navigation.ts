@@ -31,4 +31,9 @@ export const navigationLinks: NavLink[] = [
     label: 'Book Now',
     href: '/booking',
   },
+  {
+    id: 'terms',
+    label: 'Terms',
+    href: '/terms',
+  },
 ];

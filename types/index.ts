@@ -4,14 +4,12 @@ export interface Vehicle {
   name: string;
   category: string;
   image: string;
-  dailyRate: number;
-  weeklyRate: number;
-  monthlyRate: number;
   seats: number;
   transmission: 'manual' | 'automatic';
   fuelType: 'petrol' | 'diesel' | 'hybrid';
   features: string[];
   description: string;
+  isBooked: boolean;
 }
 
 // Service types

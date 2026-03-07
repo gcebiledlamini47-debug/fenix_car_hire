@@ -1,26 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 const slides = [
   {
     id: 1,
-    title: 'Premium Car Rental Services',
-    description: 'Experience comfort and reliability with our wide selection of vehicles',
-    bgColor: 'bg-gradient-to-r from-[#1a4a8d] to-[#00A8E8]',
+    title: 'For all your rental needs',
+    description: 'Premium car rental services in Eswatini',
+    image: '/images/hero-car-bg.jpg',
   },
   {
     id: 2,
-    title: 'Affordable Rates',
-    description: 'Get the best value for your money with our competitive pricing',
-    bgColor: 'bg-gradient-to-r from-[#00A8E8] to-[#0087b8]',
+    title: 'Reliable & Professional',
+    description: 'Quality vehicles for every journey',
+    image: '/images/hero-car-bg.jpg',
   },
   {
     id: 3,
-    title: '24/7 Support',
-    description: 'Round-the-clock customer service for your peace of mind',
-    bgColor: 'bg-gradient-to-r from-[#1a4a8d] to-[#2a6ab0]',
+    title: '24/7 Support Available',
+    description: 'Call us anytime at +268 76829797',
+    image: '/images/hero-car-bg.jpg',
   },
 ];
 
@@ -47,16 +48,27 @@ export function HeroSlider() {
           key={slide.id}
           className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentSlide ? 'opacity-100' : 'opacity-0'
-          } ${slide.bgColor}`}
+          }`}
         >
-          <div className="h-full flex flex-col items-center justify-center text-white text-center px-4">
+          {/* Background Image */}
+          <Image
+            src={slide.image}
+            alt={slide.title}
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/40" />
+          {/* Content */}
+          <div className="relative h-full flex flex-col items-center justify-center text-white text-center px-4">
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-balance">{slide.title}</h2>
             <p className="text-lg md:text-xl mb-8 text-gray-100 max-w-2xl">{slide.description}</p>
             <Link
               href="/booking"
-              className="px-8 py-3 bg-white text-[#1a4a8d] rounded-lg font-bold hover:bg-gray-100 transition-colors"
+              className="px-8 py-3 bg-[#00A8E8] text-white rounded-lg font-bold hover:bg-[#0087b8] transition-colors"
             >
-              Book Your Car
+              Book Your Car Now
             </Link>
           </div>
         </div>

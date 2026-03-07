@@ -3,8 +3,8 @@ import { VehicleGrid } from '@/components/features/VehicleGrid';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Fleet | Fenix Car Hire',
-  description: 'Browse our complete fleet of vehicles ranging from economy to luxury cars.',
+  title: 'Fleet | Fenix Car Hire Eswatini',
+  description: 'Browse our complete fleet of vehicles available in Eswatini. See availability and book your car today.',
 };
 
 export default function Fleet() {
@@ -14,17 +14,27 @@ export default function Fleet() {
       <Section className="bg-gradient-to-r from-[#1a4a8d] to-[#00A8E8] text-white">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Fleet</h1>
         <p className="text-xl text-gray-100 max-w-3xl">
-          Choose from our diverse selection of well-maintained vehicles for every occasion.
+          Choose from our diverse selection of well-maintained vehicles available throughout Eswatini.
         </p>
       </Section>
 
       {/* Fleet Grid */}
       <Section>
         <div className="mb-10">
-          <p className="text-gray-700 text-lg">
-            All our vehicles are regularly inspected and maintained to the highest standards. Select a vehicle below to see
-            detailed specifications and pricing.
+          <h2 className="text-2xl font-bold text-[#1a4a8d] mb-4">Available Vehicles</h2>
+          <p className="text-gray-700 text-lg mb-4">
+            All our vehicles are regularly inspected and maintained to the highest standards. Each vehicle shows its current availability status:
           </p>
+          <div className="flex gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
+              <span className="text-gray-700">Available for booking</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-4 h-4 bg-red-500 rounded-full"></span>
+              <span className="text-gray-700">Currently booked</span>
+            </div>
+          </div>
         </div>
         <VehicleGrid />
       </Section>
@@ -87,39 +97,19 @@ export default function Fleet() {
         </div>
       </Section>
 
-      {/* Pricing Information */}
-      <Section>
-        <h2 className="text-3xl font-bold text-[#1a4a8d] mb-8 text-center">Pricing Options</h2>
-        <div className="grid md:grid-cols-3 gap-6 text-center">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Daily Rates</h3>
-            <p className="text-gray-700 mb-4">Perfect for short trips and weekend getaways</p>
-            <ul className="space-y-2 text-sm text-gray-600 mb-6">
-              <li>✓ Flexible duration</li>
-              <li>✓ No long-term commitment</li>
-              <li>✓ Full insurance included</li>
-            </ul>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-[#00A8E8]">
-            <h3 className="text-2xl font-bold text-[#00A8E8] mb-4">Weekly Rates</h3>
-            <p className="text-gray-700 mb-4">Great savings on weekly rentals</p>
-            <ul className="space-y-2 text-sm text-gray-600 mb-6">
-              <li>✓ 20% discount</li>
-              <li>✓ Extended flexibility</li>
-              <li>✓ Free mileage</li>
-            </ul>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-[#1a4a8d] mb-4">Monthly Rates</h3>
-            <p className="text-gray-700 mb-4">Best value for long-term rentals</p>
-            <ul className="space-y-2 text-sm text-gray-600 mb-6">
-              <li>✓ 35% discount</li>
-              <li>✓ Maintenance included</li>
-              <li>✓ Unlimited mileage</li>
-            </ul>
-          </div>
+      {/* Contact Section */}
+      <Section className="bg-[#1a4a8d] text-white text-center">
+        <h2 className="text-3xl font-bold mb-4">Ready to Book Your Car?</h2>
+        <p className="text-lg text-gray-100 mb-6 max-w-2xl mx-auto">
+          Contact us for pricing information and special offers. Our team is available 24/7 in Eswatini.
+        </p>
+        <div className="flex flex-col md:flex-row justify-center gap-4">
+          <a href="tel:+26824221045" className="px-6 py-3 bg-[#00A8E8] text-white rounded-lg font-bold hover:bg-[#0087b8] transition-colors">
+            Call: +268 24221045
+          </a>
+          <a href="https://wa.me/26876829797" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600 transition-colors">
+            WhatsApp: +268 76829797
+          </a>
         </div>
       </Section>
     </>

@@ -15,9 +15,9 @@ export default function Home() {
       {/* Quick Intro */}
       <Section className="bg-gradient-to-r from-[#1a4a8d] to-[#00A8E8] text-white">
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Welcome to Fenix Car Hire</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Welcome to Fenix Car Hire Eswatini</h2>
           <p className="text-lg max-w-3xl mx-auto text-gray-100">
-            Experience the finest car rental service with competitive rates, flexible terms, and exceptional customer service.
+            For all your rental needs - Quality vehicles, professional service, and 24/7 support throughout Eswatini.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
@@ -27,9 +27,9 @@ export default function Home() {
             <p>From economy cars to luxury vehicles, we have the perfect option for you.</p>
           </div>
           <div className="text-center">
-            <div className="text-5xl mb-3">💰</div>
-            <h3 className="text-xl font-bold mb-2">Best Prices</h3>
-            <p>Competitive rates with transparent pricing and no hidden charges.</p>
+            <div className="text-5xl mb-3">✓</div>
+            <h3 className="text-xl font-bold mb-2">Reliable Service</h3>
+            <p>Well-maintained vehicles with transparent terms and no hidden charges.</p>
           </div>
           <div className="text-center">
             <div className="text-5xl mb-3">🛡️</div>

@@ -14,9 +14,27 @@ export function Footer() {
               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
                 <span className="text-[#1a4a8d] font-bold">F</span>
               </div>
-              <span className="font-bold text-lg">Fenix Car Hire</span>
+              <span className="font-bold text-lg">Fenix Car Hire Eswatini</span>
             </div>
-            <p className="text-gray-300 text-sm">Your trusted partner for reliable and affordable car rentals across Tanzania.</p>
+            <p className="text-gray-300 text-sm mb-4">Your trusted partner for reliable and affordable car rentals in Eswatini.</p>
+            <div className="flex gap-4">
+              <a 
+                href="https://www.facebook.com/fenixcarhire.eswatini" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[#00A8E8] hover:text-white transition-colors text-sm font-semibold"
+              >
+                Facebook
+              </a>
+              <a 
+                href="https://wa.me/26876829797" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[#00A8E8] hover:text-white transition-colors text-sm font-semibold"
+              >
+                WhatsApp
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -48,9 +66,10 @@ export function Footer() {
           <div>
             <h3 className="font-bold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="tel:+255756123456" className="hover:text-white transition-colors">+255 756 123 456</a></li>
-              <li><a href="mailto:info@fenixcarhire.com" className="hover:text-white transition-colors">info@fenixcarhire.com</a></li>
-              <li>Dar es Salaam, Tanzania</li>
+              <li><a href="tel:+26824221045" className="hover:text-white transition-colors">Tel: +268 24221045</a></li>
+              <li><a href="tel:+26876829797" className="hover:text-white transition-colors">Mobile: +268 76829797</a></li>
+              <li><a href="https://wa.me/26876829797" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WhatsApp: +268 76829797</a></li>
+              <li><a href="mailto:reception@fenix.co.sz" className="hover:text-white transition-colors">reception@fenix.co.sz</a></li>
             </ul>
           </div>
         </div>
@@ -58,7 +77,7 @@ export function Footer() {
         {/* Divider */}
         <div className="border-t border-gray-500 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-300 text-sm">&copy; {currentYear} Fenix Car Hire. All rights reserved.</p>
+            <p className="text-gray-300 text-sm">&copy; {currentYear} Fenix Car Hire Eswatini. All rights reserved.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
               <Link href="/terms" className="text-gray-300 hover:text-white text-sm transition-colors">
                 Terms & Conditions
