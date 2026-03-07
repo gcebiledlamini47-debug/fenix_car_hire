@@ -83,7 +83,7 @@ export default function Contact() {
           {[
             {
               q: 'What documents do I need to rent a car?',
-              a: 'You'll need a valid driver\'s license (at least 2 years old), a passport or national ID, and a credit card for the security deposit.',
+              a: "You'll need a valid driver's license (at least 2 years old), a passport or national ID, and a credit card for the security deposit.",
             },
             {
               q: 'What is included in the rental price?',
