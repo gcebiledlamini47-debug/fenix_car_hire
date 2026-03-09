@@ -129,15 +129,6 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
-
-        <div className="mt-6 pt-6 border-t border-slate-800 text-center">
-          <a
-            href="/"
-            className="text-slate-400 hover:text-emerald-500 text-sm transition-colors"
-          >
-            ← Return to main website
-          </a>
-        </div>
       </div>
     </div>
   )
