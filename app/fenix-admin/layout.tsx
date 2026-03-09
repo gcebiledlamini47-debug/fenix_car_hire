@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard | Fenix Car Hire",
-  description: "Manage your car rental fleet",
+  title: "Admin Portal | Fenix Car Hire",
+  description: "Private admin portal - unauthorized access prohibited",
   robots: "noindex, nofollow",
 }
 
@@ -11,5 +11,14 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return (
+    <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body className="bg-slate-950 text-white">
+        {children}
+      </body>
+    </html>
+  )
 }
