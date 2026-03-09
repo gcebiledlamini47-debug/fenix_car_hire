@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -9,9 +9,14 @@ import { VehiclesPanel } from "@/components/admin/VehiclesPanel"
 import { BookingsPanel } from "@/components/admin/BookingsPanel"
 import { MessagesPanel } from "@/components/admin/MessagesPanel"
 import { DashboardPanel } from "@/components/admin/DashboardPanel"
+import { InvoicesPanel } from "@/components/admin/InvoicesPanel"
+import { QuotationsPanel } from "@/components/admin/QuotationsPanel"
+import { PaymentsPanel } from "@/components/admin/PaymentsPanel"
+import { ReportsPanel } from "@/components/admin/ReportsPanel"
+import { NotificationCenter } from "@/components/admin/NotificationCenter"
 import type { User } from "@supabase/supabase-js"
 
-export type AdminTab = "dashboard" | "vehicles" | "bookings" | "messages"
+export type AdminTab = "dashboard" | "vehicles" | "bookings" | "messages" | "invoices" | "quotations" | "payments" | "reports"
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard")
@@ -75,6 +80,7 @@ export default function AdminDashboard() {
           userEmail={user?.email || ""}
           onLogout={handleLogout}
           onMenuToggle={() => setSidebarOpen(true)}
+          notificationCenter={<NotificationCenter />}
         />
         
         <main className="flex-1 p-4 md:p-6 overflow-auto">
@@ -82,6 +88,10 @@ export default function AdminDashboard() {
           {activeTab === "vehicles" && <VehiclesPanel />}
           {activeTab === "bookings" && <BookingsPanel />}
           {activeTab === "messages" && <MessagesPanel />}
+          {activeTab === "invoices" && <InvoicesPanel />}
+          {activeTab === "quotations" && <QuotationsPanel />}
+          {activeTab === "payments" && <PaymentsPanel />}
+          {activeTab === "reports" && <ReportsPanel />}
         </main>
       </div>
     </div>

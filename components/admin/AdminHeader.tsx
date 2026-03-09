@@ -6,9 +6,10 @@ interface AdminHeaderProps {
   userEmail: string
   onLogout: () => void
   onMenuToggle: () => void
+  notificationCenter?: React.ReactNode
 }
 
-export function AdminHeader({ userEmail, onLogout, onMenuToggle }: AdminHeaderProps) {
+export function AdminHeader({ userEmail, onLogout, onMenuToggle, notificationCenter }: AdminHeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
       <div className="flex items-center justify-between">
@@ -26,6 +27,7 @@ export function AdminHeader({ userEmail, onLogout, onMenuToggle }: AdminHeaderPr
         </div>
 
         <div className="flex items-center gap-3 md:gap-4">
+          {notificationCenter}
           <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
             <User className="w-4 h-4" />
             <span className="max-w-[150px] truncate">{userEmail}</span>

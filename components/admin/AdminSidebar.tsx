@@ -1,6 +1,6 @@
 "use client"
 
-import { Car, LayoutDashboard, Calendar, MessageSquare, X } from "lucide-react"
+import { Car, LayoutDashboard, Calendar, MessageSquare, X, Receipt, FileText, CreditCard, BarChart3 } from "lucide-react"
 import type { AdminTab } from "@/app/fenix-admin/page"
 
 interface AdminSidebarProps {
@@ -15,6 +15,10 @@ const navItems = [
   { id: "vehicles" as AdminTab, label: "Vehicles", icon: Car },
   { id: "bookings" as AdminTab, label: "Bookings", icon: Calendar },
   { id: "messages" as AdminTab, label: "Messages", icon: MessageSquare },
+  { id: "quotations" as AdminTab, label: "Quotations", icon: FileText },
+  { id: "invoices" as AdminTab, label: "Invoices", icon: Receipt },
+  { id: "payments" as AdminTab, label: "Payments", icon: CreditCard },
+  { id: "reports" as AdminTab, label: "Reports", icon: BarChart3 },
 ]
 
 export function AdminSidebar({ activeTab, setActiveTab, isOpen, onClose }: AdminSidebarProps) {
