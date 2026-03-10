@@ -21,7 +21,7 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: var(--accent);
   color: var(--foreground);
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   line-height: 1.6;
