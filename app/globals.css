@@ -25,3 +25,15 @@ body {
   color: var(--foreground);
   font-family: system-ui, -apple-system, sans-serif;
 }
+
+.bg-neutral-900 {
+  background: white !important;
+}
+
+.bg-black {
+  background: white !important;
+}
+
+.text-white {
+  color: #111827 !important;
+}
