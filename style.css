@@ -16,7 +16,7 @@ body {
 
 /* NAVIGATION */
 nav {
-    background: blue;
+    background: white;
     padding: 15px 10%;
     display: flex;
     justify-content: space-between;
