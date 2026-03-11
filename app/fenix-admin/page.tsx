@@ -7,162 +7,148 @@ import type { User } from "@supabase/supabase-js"
 import { 
   LayoutDashboard, Car, CalendarCheck, FileText, Receipt, 
   AlertTriangle, CreditCard, LogOut, Menu, X, Bell, 
-  TrendingUp, Clock, CheckCircle, XCircle, DollarSign, Users, Eye
+  TrendingUp, Clock, CheckCircle, XCircle, DollarSign, Users, Plus, Edit2, Trash2
 } from "lucide-react"
 
-type Tab = "overview" | "bookings" | "vehicles" | "invoices" | "quotations" | "payments" | "bad-debts"
-
-interface Stats {
-  totalBookings: number
-  pendingBookings: number
-  confirmedBookings: number
-  totalVehicles: number
-  availableVehicles: number
-  bookedVehicles: number
-  totalInvoices: number
-  pendingInvoices: number
-  paidInvoices: number
-  totalRevenue: number
-  pendingRevenue: number
-  quotationsCount: number
-  badDebtsCount: number
-  badDebtsAmount: number
-}
-
-interface Booking {
-  id: string
-  first_name: string
-  last_name: string
-  email: string
-  phone: string
-  vehicle_name: string
-  pickup_date: string
-  return_date: string
-  status: string
-  created_at: string
-}
-
-interface Vehicle {
-  id: string
-  name: string
-  category: string
-  price_per_day: number
-  is_booked: boolean
-  image: string
-  seats: number
-  transmission: string
-}
-
-interface Invoice {
-  id: string
-  invoice_number: string
-  customer_name: string
-  customer_email: string
-  vehicle_name: string
-  total_amount: number
-  status: string
-  payment_status: string
-  created_at: string
-}
-
-interface Quotation {
-  id: string
-  customer_name: string
-  customer_email: string
-  vehicle_name: string
-  total_amount: number
-  status: string
-  created_at: string
-}
+type Tab = "overview" | "bookings" | "vehicles" | "invoices" | "quotations" | "check-sheets" | "payments" | "bad-debts"
 
 export default function AdminDashboard() {
+  const router = useRouter()
+  const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>("overview")
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [bookings, setBookings] = useState<Booking[]>([])
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [quotations, setQuotations] = useState<Quotation[]>([])
-  const [notifications, setNotifications] = useState<number>(0)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   
-  const router = useRouter()
-  const supabase = createClient()
+  // Invoices state
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [editingInvoice, setEditingInvoice] = useState<any | null>(null)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [invoiceForm, setInvoiceForm] = useState({
+    customer_name: "",
+    date: new Date().toISOString().split('T')[0],
+    invoice_number: "",
+    po_number: "",
+    contact_person: "",
+    contact_number: "",
+    email_address: "",
+    description: "",
+    rate_per_day: 0,
+    quantity: 1,
+    kms_per_day: 0,
+    days: 0,
+    excess: 0,
+    total: 0,
+    subtotal: 0,
+    vat_amount: 0,
+    account_name: "",
+    bank_name: "",
+    branch_code: "",
+    account_number: "",
+    status: "draft"
+  })
+
+  // Quotations state
+  const [quotations, setQuotations] = useState<any[]>([])
+  const [editingQuotation, setEditingQuotation] = useState<any | null>(null)
+  const [showQuotationModal, setShowQuotationModal] = useState(false)
+  const [quotationForm, setQuotationForm] = useState({
+    customer_name: "",
+    date: new Date().toISOString().split('T')[0],
+    quotation_id: "",
+    customer_type: "",
+    contact_person: "",
+    contact_number: "",
+    email_address: "",
+    description: "",
+    rate_per_day: 0,
+    quantity: 1,
+    kms_per_day: 0,
+    days: 0,
+    excess: 0,
+    total: 0,
+    subtotal: 0,
+    vat_amount: 0,
+    account_name: "",
+    bank_name: "",
+    branch_code: "",
+    account_number: "",
+    status: "pending"
+  })
+
+  // Check Sheet state
+  const [checkSheets, setCheckSheets] = useState<any[]>([])
+  const [editingCheckSheet, setEditingCheckSheet] = useState<any | null>(null)
+  const [showCheckSheetModal, setShowCheckSheetModal] = useState(false)
+  const [checkSheetForm, setCheckSheetForm] = useState({
+    vehicle_name: "",
+    plate_number: "",
+    pre_rental_date: new Date().toISOString().split('T')[0],
+    post_rental_date: "",
+    odometer_pre: 0,
+    odometer_post: 0,
+    fuel_level_pre: "Full",
+    fuel_level_post: "Full",
+    tire_condition_pre: "Good",
+    tire_condition_post: "Good",
+    headlights: true,
+    wipers: true,
+    battery: true,
+    brakes: true,
+    ac: true,
+    lights_interior: true,
+    door_locks: true,
+    seatbelts: true,
+    mirrors: true,
+    windshield: true,
+    body_damage: "",
+    interior_damage: "",
+    customer_name: "",
+    signature_pre: "",
+    signature_post: "",
+    notes: ""
+  })
 
   useEffect(() => {
     checkAuth()
-    fetchData()
-    setupRealtimeSubscription()
   }, [])
 
   const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push("/fenix-admin/login")
+        return
+      }
+      setUser(user)
+      fetchData()
+    } catch (error) {
+      console.error("Auth error:", error)
       router.push("/fenix-admin/login")
-      return
+    } finally {
+      setLoading(false)
     }
-    setUser(user)
-    setLoading(false)
   }
 
   const fetchData = async () => {
-    const [bookingsRes, vehiclesRes, invoicesRes, quotationsRes] = await Promise.all([
-      supabase.from("bookings").select("*").order("created_at", { ascending: false }),
-      supabase.from("vehicles").select("*"),
-      supabase.from("invoices").select("*").order("created_at", { ascending: false }),
-      supabase.from("quotations").select("*").order("created_at", { ascending: false }),
-    ])
+    try {
+      // Fetch invoices
+      const { data: invoicesData } = await supabase
+        .from("invoices")
+        .select("*")
+        .order("created_at", { ascending: false })
+      
+      // Fetch quotations
+      const { data: quotationsData } = await supabase
+        .from("quotations")
+        .select("*")
+        .order("created_at", { ascending: false })
 
-    const bookingsData = bookingsRes.data || []
-    const vehiclesData = vehiclesRes.data || []
-    const invoicesData = invoicesRes.data || []
-    const quotationsData = quotationsRes.data || []
-
-    setBookings(bookingsData)
-    setVehicles(vehiclesData)
-    setInvoices(invoicesData)
-    setQuotations(quotationsData)
-
-    const pendingBookings = bookingsData.filter(b => b.status === "pending").length
-    const confirmedBookings = bookingsData.filter(b => b.status === "confirmed").length
-    const availableVehicles = vehiclesData.filter(v => !v.is_booked).length
-    const bookedVehicles = vehiclesData.filter(v => v.is_booked).length
-    const pendingInvoices = invoicesData.filter(i => i.payment_status === "pending" || i.payment_status === "unpaid").length
-    const paidInvoices = invoicesData.filter(i => i.payment_status === "paid").length
-    const totalRevenue = invoicesData.filter(i => i.payment_status === "paid").reduce((sum, i) => sum + (i.total_amount || 0), 0)
-    const pendingRevenue = invoicesData.filter(i => i.payment_status !== "paid").reduce((sum, i) => sum + (i.total_amount || 0), 0)
-    const badDebts = invoicesData.filter(i => i.status === "overdue" || i.payment_status === "overdue")
-    
-    setStats({
-      totalBookings: bookingsData.length,
-      pendingBookings,
-      confirmedBookings,
-      totalVehicles: vehiclesData.length,
-      availableVehicles,
-      bookedVehicles,
-      totalInvoices: invoicesData.length,
-      pendingInvoices,
-      paidInvoices,
-      totalRevenue,
-      pendingRevenue,
-      quotationsCount: quotationsData.length,
-      badDebtsCount: badDebts.length,
-      badDebtsAmount: badDebts.reduce((sum, i) => sum + (i.total_amount || 0), 0),
-    })
-
-    setNotifications(pendingBookings)
-  }
-
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel("admin-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => fetchData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "invoices" }, () => fetchData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "quotations" }, () => fetchData())
-      .subscribe()
-
-    return () => { channel.unsubscribe() }
+      setInvoices(invoicesData || [])
+      setQuotations(quotationsData || [])
+    } catch (error) {
+      console.error("Error fetching data:", error)
+    }
   }
 
   const handleLogout = async () => {
@@ -170,587 +156,739 @@ export default function AdminDashboard() {
     router.push("/fenix-admin/login")
   }
 
-  const updateBookingStatus = async (id: string, status: string) => {
-    await supabase.from("bookings").update({ status }).eq("id", id)
-    fetchData()
+  const handleSaveInvoice = async () => {
+    try {
+      if (editingInvoice) {
+        await supabase
+          .from("invoices")
+          .update(invoiceForm)
+          .eq("id", editingInvoice.id)
+      } else {
+        await supabase
+          .from("invoices")
+          .insert([invoiceForm])
+      }
+      setShowInvoiceModal(false)
+      setEditingInvoice(null)
+      setInvoiceForm({
+        customer_name: "",
+        date: new Date().toISOString().split('T')[0],
+        invoice_number: "",
+        po_number: "",
+        contact_person: "",
+        contact_number: "",
+        email_address: "",
+        description: "",
+        rate_per_day: 0,
+        quantity: 1,
+        kms_per_day: 0,
+        days: 0,
+        excess: 0,
+        total: 0,
+        subtotal: 0,
+        vat_amount: 0,
+        account_name: "",
+        bank_name: "",
+        branch_code: "",
+        account_number: "",
+        status: "draft"
+      })
+      fetchData()
+    } catch (error) {
+      console.error("Error saving invoice:", error)
+    }
   }
 
-  const updateVehicleStatus = async (id: string, is_booked: boolean) => {
-    await supabase.from("vehicles").update({ is_booked }).eq("id", id)
-    fetchData()
+  const handleSaveQuotation = async () => {
+    try {
+      if (editingQuotation) {
+        await supabase
+          .from("quotations")
+          .update(quotationForm)
+          .eq("id", editingQuotation.id)
+      } else {
+        await supabase
+          .from("quotations")
+          .insert([quotationForm])
+      }
+      setShowQuotationModal(false)
+      setEditingQuotation(null)
+      setQuotationForm({
+        customer_name: "",
+        date: new Date().toISOString().split('T')[0],
+        quotation_id: "",
+        customer_type: "",
+        contact_person: "",
+        contact_number: "",
+        email_address: "",
+        description: "",
+        rate_per_day: 0,
+        quantity: 1,
+        kms_per_day: 0,
+        days: 0,
+        excess: 0,
+        total: 0,
+        subtotal: 0,
+        vat_amount: 0,
+        account_name: "",
+        bank_name: "",
+        branch_code: "",
+        account_number: "",
+        status: "pending"
+      })
+      fetchData()
+    } catch (error) {
+      console.error("Error saving quotation:", error)
+    }
   }
 
-  const updateInvoiceStatus = async (id: string, payment_status: string) => {
-    await supabase.from("invoices").update({ payment_status }).eq("id", id)
-    fetchData()
+  const handleDeleteInvoice = async (id: string) => {
+    if (confirm("Are you sure you want to delete this invoice?")) {
+      try {
+        await supabase.from("invoices").delete().eq("id", id)
+        fetchData()
+      } catch (error) {
+        console.error("Error deleting invoice:", error)
+      }
+    }
+  }
+
+  const handleDeleteQuotation = async (id: string) => {
+    if (confirm("Are you sure you want to delete this quotation?")) {
+      try {
+        await supabase.from("quotations").delete().eq("id", id)
+        fetchData()
+      } catch (error) {
+        console.error("Error deleting quotation:", error)
+      }
+    }
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-300 border-t-blue-600"></div>
-          <p className="text-gray-500 text-sm">Loading...</p>
-        </div>
-      </div>
-    )
+    return <div className="flex items-center justify-center h-screen">Loading...</div>
   }
 
-  const navItems = [
-    { id: "overview" as Tab, label: "Overview", icon: LayoutDashboard },
-    { id: "bookings" as Tab, label: "Bookings", icon: CalendarCheck, badge: stats?.pendingBookings },
-    { id: "vehicles" as Tab, label: "Vehicles", icon: Car },
-    { id: "invoices" as Tab, label: "Invoices", icon: Receipt },
-    { id: "quotations" as Tab, label: "Quotations", icon: FileText },
-    { id: "payments" as Tab, label: "Payments", icon: CreditCard },
-    { id: "bad-debts" as Tab, label: "Bad Debts", icon: AlertTriangle },
-  ]
+  if (!user) {
+    return null
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">F</span>
-              </div>
-              <span className="font-semibold text-gray-900">Fenix Admin</span>
-            </div>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => { setActiveTab(item.id); setSidebarOpen(false) }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === item.id
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.label}
-                {item.badge && item.badge > 0 && (
-                  <span className="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-
-          {/* User */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">{user?.email?.[0].toUpperCase()}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 truncate">{user?.email}</p>
-                <p className="text-xs text-gray-500">Administrator</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
-          </div>
+      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white shadow-lg transition-all duration-300 overflow-y-auto`}>
+        <div className="p-4 border-b">
+          <h1 className={`font-bold text-[#1a4a8d] ${!sidebarOpen && 'text-center'}`}>
+            {sidebarOpen ? 'Fenix Admin' : 'FA'}
+          </h1>
         </div>
-      </aside>
-
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+        
+        <nav className="p-4 space-y-2">
+          {[
+            { id: 'overview' as Tab, label: 'Dashboard', icon: LayoutDashboard },
+            { id: 'bookings' as Tab, label: 'Bookings', icon: CalendarCheck },
+            { id: 'vehicles' as Tab, label: 'Vehicles', icon: Car },
+            { id: 'invoices' as Tab, label: 'Invoices', icon: Receipt },
+            { id: 'quotations' as Tab, label: 'Quotations', icon: FileText },
+            { id: 'check-sheets' as Tab, label: 'Check Sheets', icon: CheckCircle },
+            { id: 'payments' as Tab, label: 'Payments', icon: CreditCard },
+            { id: 'bad-debts' as Tab, label: 'Bad Debts', icon: AlertTriangle },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                activeTab === item.id
+                  ? 'bg-[#00A8E8] text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              } ${!sidebarOpen && 'justify-center'}`}
+            >
+              <item.icon className="w-5 h-5" />
+              {sidebarOpen && item.label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       {/* Main Content */}
-      <div className="lg:ml-64">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-16">
-          <div className="flex items-center justify-between h-full px-4 md:px-6">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-400 hover:text-gray-600">
-                <Menu className="w-6 h-6" />
-              </button>
-              <h1 className="text-lg font-semibold text-gray-900 capitalize">{activeTab.replace("-", " ")}</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
-                <Bell className="w-5 h-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                )}
-              </button>
-            </div>
+        <div className="bg-white shadow-sm border-b p-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <h2 className="text-2xl font-bold text-gray-800">
+              {activeTab === 'overview' && 'Dashboard'}
+              {activeTab === 'bookings' && 'Bookings'}
+              {activeTab === 'vehicles' && 'Vehicles'}
+              {activeTab === 'invoices' && 'Invoices'}
+              {activeTab === 'quotations' && 'Quotations'}
+              {activeTab === 'check-sheets' && 'Vehicle Check Sheets'}
+              {activeTab === 'payments' && 'Payments'}
+              {activeTab === 'bad-debts' && 'Bad Debts'}
+            </h2>
           </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-4 md:p-6">
-          {activeTab === "overview" && <OverviewPanel stats={stats} bookings={bookings} />}
-          {activeTab === "bookings" && <BookingsPanel bookings={bookings} onUpdateStatus={updateBookingStatus} />}
-          {activeTab === "vehicles" && <VehiclesPanel vehicles={vehicles} onUpdateStatus={updateVehicleStatus} />}
-          {activeTab === "invoices" && <InvoicesPanel invoices={invoices} onUpdateStatus={updateInvoiceStatus} />}
-          {activeTab === "quotations" && <QuotationsPanel quotations={quotations} />}
-          {activeTab === "payments" && <PaymentsPanel invoices={invoices} />}
-          {activeTab === "bad-debts" && <BadDebtsPanel invoices={invoices} />}
-        </main>
-      </div>
-    </div>
-  )
-}
-
-// Overview Panel
-function OverviewPanel({ stats, bookings }: { stats: Stats | null, bookings: Booking[] }) {
-  const statCards = [
-    { label: "Total Bookings", value: stats?.totalBookings || 0, icon: CalendarCheck, color: "bg-blue-100 text-blue-600" },
-    { label: "Pending Bookings", value: stats?.pendingBookings || 0, icon: Clock, color: "bg-yellow-100 text-yellow-600" },
-    { label: "Available Cars", value: stats?.availableVehicles || 0, icon: Car, color: "bg-green-100 text-green-600" },
-    { label: "Booked Cars", value: stats?.bookedVehicles || 0, icon: Car, color: "bg-purple-100 text-purple-600" },
-    { label: "Total Revenue", value: `E${(stats?.totalRevenue || 0).toLocaleString()}`, icon: DollarSign, color: "bg-emerald-100 text-emerald-600" },
-    { label: "Pending Revenue", value: `E${(stats?.pendingRevenue || 0).toLocaleString()}`, icon: TrendingUp, color: "bg-orange-100 text-orange-600" },
-    { label: "Pending Invoices", value: stats?.pendingInvoices || 0, icon: Receipt, color: "bg-red-100 text-red-600" },
-    { label: "Bad Debts", value: stats?.badDebtsCount || 0, icon: AlertTriangle, color: "bg-red-100 text-red-600" },
-  ]
-
-  return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {statCards.map((stat, i) => (
-          <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
-              <stat.icon className="w-5 h-5" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-            <p className="text-sm text-gray-500">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Recent Bookings */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="font-semibold text-gray-900">Recent Booking Requests</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Customer</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Vehicle</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Dates</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {bookings.slice(0, 5).map((booking) => (
-                <tr key={booking.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900">{booking.first_name} {booking.last_name}</p>
-                    <p className="text-xs text-gray-500">{booking.email}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{booking.vehicle_name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {new Date(booking.pickup_date).toLocaleDateString()} - {new Date(booking.return_date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      booking.status === "confirmed" ? "bg-green-100 text-green-700" :
-                      booking.status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                      "bg-gray-100 text-gray-700"
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {bookings.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500">No bookings yet</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Bookings Panel
-function BookingsPanel({ bookings, onUpdateStatus }: { bookings: Booking[], onUpdateStatus: (id: string, status: string) => void }) {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-        <h3 className="font-semibold text-gray-900">All Bookings</h3>
-        <span className="text-sm text-gray-500">{bookings.length} total</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Customer</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Contact</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Vehicle</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Dates</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Status</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {bookings.map((booking) => (
-              <tr key={booking.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <p className="text-sm font-medium text-gray-900">{booking.first_name} {booking.last_name}</p>
-                </td>
-                <td className="px-6 py-4">
-                  <p className="text-sm text-gray-700">{booking.email}</p>
-                  <p className="text-xs text-gray-500">{booking.phone}</p>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-700">{booking.vehicle_name}</td>
-                <td className="px-6 py-4 text-sm text-gray-700">
-                  {new Date(booking.pickup_date).toLocaleDateString()} - {new Date(booking.return_date).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                    booking.status === "confirmed" ? "bg-green-100 text-green-700" :
-                    booking.status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                    booking.status === "cancelled" ? "bg-red-100 text-red-700" :
-                    "bg-gray-100 text-gray-700"
-                  }`}>
-                    {booking.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-2">
-                    {booking.status === "pending" && (
-                      <>
-                        <button onClick={() => onUpdateStatus(booking.id, "confirmed")} className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200">
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => onUpdateStatus(booking.id, "cancelled")} className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200">
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-// Vehicles Panel
-function VehiclesPanel({ vehicles, onUpdateStatus }: { vehicles: Vehicle[], onUpdateStatus: (id: string, is_booked: boolean) => void }) {
-  return (
-    <div className="space-y-4">
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Fleet Summary</h3>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <p className="text-3xl font-bold text-blue-600">{vehicles.length}</p>
-            <p className="text-sm text-gray-600 mt-1">Total Vehicles</p>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <p className="text-3xl font-bold text-green-600">{vehicles.filter(v => !v.is_booked).length}</p>
-            <p className="text-sm text-gray-600 mt-1">Available</p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4 text-center">
-            <p className="text-3xl font-bold text-purple-600">{vehicles.filter(v => v.is_booked).length}</p>
-            <p className="text-sm text-gray-600 mt-1">Booked</p>
+          <div className="flex items-center gap-4">
+            <span className="text-gray-600">{user.email}</span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="font-semibold text-gray-900">All Vehicles</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Vehicle</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Category</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Price/Day</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Seats</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {vehicles.map((vehicle) => (
-                <tr key={vehicle.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900">{vehicle.name}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 capitalize">{vehicle.category}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">E{vehicle.price_per_day}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{vehicle.seats}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      vehicle.is_booked ? "bg-purple-100 text-purple-700" : "bg-green-100 text-green-700"
-                    }`}>
-                      {vehicle.is_booked ? "Booked" : "Available"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button 
-                      onClick={() => onUpdateStatus(vehicle.id, !vehicle.is_booked)}
-                      className="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
-                      title="Toggle status"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Invoices Panel
-function InvoicesPanel({ invoices, onUpdateStatus }: { invoices: Invoice[], onUpdateStatus: (id: string, payment_status: string) => void }) {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-        <h3 className="font-semibold text-gray-900">All Invoices</h3>
-        <span className="text-sm text-gray-500">{invoices.length} total</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Invoice #</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Customer</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Vehicle</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Amount</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Payment Status</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {invoices.map((invoice) => (
-              <tr key={invoice.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{invoice.invoice_number}</td>
-                <td className="px-6 py-4">
-                  <p className="text-sm text-gray-900">{invoice.customer_name}</p>
-                  <p className="text-xs text-gray-500">{invoice.customer_email}</p>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-700">{invoice.vehicle_name}</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">E{invoice.total_amount.toLocaleString()}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                    invoice.payment_status === "paid" ? "bg-green-100 text-green-700" :
-                    invoice.payment_status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                    "bg-red-100 text-red-700"
-                  }`}>
-                    {invoice.payment_status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {invoice.payment_status !== "paid" && (
-                    <button 
-                      onClick={() => onUpdateStatus(invoice.id, "paid")}
-                      className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200"
-                      title="Mark as paid"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-// Quotations Panel
-function QuotationsPanel({ quotations }: { quotations: Quotation[] }) {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-        <h3 className="font-semibold text-gray-900">All Quotations</h3>
-        <span className="text-sm text-gray-500">{quotations.length} total</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Customer</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Vehicle</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Amount</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Status</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {quotations.map((quotation) => (
-              <tr key={quotation.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <p className="text-sm text-gray-900">{quotation.customer_name}</p>
-                  <p className="text-xs text-gray-500">{quotation.customer_email}</p>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-700">{quotation.vehicle_name}</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">E{quotation.total_amount.toLocaleString()}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                    quotation.status === "accepted" ? "bg-green-100 text-green-700" :
-                    quotation.status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                    "bg-red-100 text-red-700"
-                  }`}>
-                    {quotation.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-700">
-                  {new Date(quotation.created_at).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-// Payments Panel
-function PaymentsPanel({ invoices }: { invoices: Invoice[] }) {
-  const paidTotal = invoices.filter(i => i.payment_status === "paid").reduce((sum, i) => sum + (i.total_amount || 0), 0)
-  const pendingTotal = invoices.filter(i => i.payment_status !== "paid").reduce((sum, i) => sum + (i.total_amount || 0), 0)
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <div className="flex items-center justify-between">
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* INVOICES TAB */}
+          {activeTab === 'invoices' && (
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Paid</p>
-              <p className="text-3xl font-bold text-green-600">E{paidTotal.toLocaleString()}</p>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Invoices</h3>
+                <button
+                  onClick={() => {
+                    setEditingInvoice(null)
+                    setInvoiceForm({
+                      customer_name: "",
+                      date: new Date().toISOString().split('T')[0],
+                      invoice_number: "",
+                      po_number: "",
+                      contact_person: "",
+                      contact_number: "",
+                      email_address: "",
+                      description: "",
+                      rate_per_day: 0,
+                      quantity: 1,
+                      kms_per_day: 0,
+                      days: 0,
+                      excess: 0,
+                      total: 0,
+                      subtotal: 0,
+                      vat_amount: 0,
+                      account_name: "",
+                      bank_name: "",
+                      branch_code: "",
+                      account_number: "",
+                      status: "draft"
+                    })
+                    setShowInvoiceModal(true)
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#00A8E8] text-white rounded-lg hover:bg-[#0087b8]"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Invoice
+                </button>
+              </div>
+
+              {/* Invoices Table */}
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Invoice #</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices.map((invoice) => (
+                      <tr key={invoice.id} className="border-b hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm">{invoice.invoice_number}</td>
+                        <td className="px-6 py-4 text-sm">{invoice.customer_name}</td>
+                        <td className="px-6 py-4 text-sm font-semibold">E {invoice.total}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                            invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {invoice.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm">{invoice.date}</td>
+                        <td className="px-6 py-4 text-sm flex gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingInvoice(invoice)
+                              setInvoiceForm(invoice)
+                              setShowInvoiceModal(true)
+                            }}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteInvoice(invoice.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <div className="flex items-center justify-between">
+          )}
+
+          {/* QUOTATIONS TAB */}
+          {activeTab === 'quotations' && (
             <div>
-              <p className="text-sm text-gray-600 mb-1">Pending Payment</p>
-              <p className="text-3xl font-bold text-yellow-600">E{pendingTotal.toLocaleString()}</p>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Quotations</h3>
+                <button
+                  onClick={() => {
+                    setEditingQuotation(null)
+                    setQuotationForm({
+                      customer_name: "",
+                      date: new Date().toISOString().split('T')[0],
+                      quotation_id: "",
+                      customer_type: "",
+                      contact_person: "",
+                      contact_number: "",
+                      email_address: "",
+                      description: "",
+                      rate_per_day: 0,
+                      quantity: 1,
+                      kms_per_day: 0,
+                      days: 0,
+                      excess: 0,
+                      total: 0,
+                      subtotal: 0,
+                      vat_amount: 0,
+                      account_name: "",
+                      bank_name: "",
+                      branch_code: "",
+                      account_number: "",
+                      status: "pending"
+                    })
+                    setShowQuotationModal(true)
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#00A8E8] text-white rounded-lg hover:bg-[#0087b8]"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Quotation
+                </button>
+              </div>
+
+              {/* Quotations Table */}
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Quotation #</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quotations.map((quotation) => (
+                      <tr key={quotation.id} className="border-b hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm">{quotation.quotation_id}</td>
+                        <td className="px-6 py-4 text-sm">{quotation.customer_name}</td>
+                        <td className="px-6 py-4 text-sm font-semibold">E {quotation.total}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            quotation.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                            quotation.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {quotation.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm">{quotation.date}</td>
+                        <td className="px-6 py-4 text-sm flex gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingQuotation(quotation)
+                              setQuotationForm(quotation)
+                              setShowQuotationModal(true)
+                            }}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteQuotation(quotation.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-600" />
+          )}
+
+          {/* CHECK SHEETS TAB */}
+          {activeTab === 'check-sheets' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Vehicle Check Sheets</h3>
+                <button
+                  onClick={() => {
+                    setEditingCheckSheet(null)
+                    setCheckSheetForm({
+                      vehicle_name: "",
+                      plate_number: "",
+                      pre_rental_date: new Date().toISOString().split('T')[0],
+                      post_rental_date: "",
+                      odometer_pre: 0,
+                      odometer_post: 0,
+                      fuel_level_pre: "Full",
+                      fuel_level_post: "Full",
+                      tire_condition_pre: "Good",
+                      tire_condition_post: "Good",
+                      headlights: true,
+                      wipers: true,
+                      battery: true,
+                      brakes: true,
+                      ac: true,
+                      lights_interior: true,
+                      door_locks: true,
+                      seatbelts: true,
+                      mirrors: true,
+                      windshield: true,
+                      body_damage: "",
+                      interior_damage: "",
+                      customer_name: "",
+                      signature_pre: "",
+                      signature_post: "",
+                      notes: ""
+                    })
+                    setShowCheckSheetModal(true)
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#00A8E8] text-white rounded-lg hover:bg-[#0087b8]"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Check Sheet
+                </button>
+              </div>
+              <p className="text-gray-600">Check sheet management coming soon...</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Invoice Modal */}
+      {showInvoiceModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b flex justify-between items-center">
+              <h3 className="text-2xl font-bold">Invoice Form</h3>
+              <button onClick={() => setShowInvoiceModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  value={invoiceForm.customer_name}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, customer_name: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="date"
+                  value={invoiceForm.date}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, date: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Invoice Number"
+                  value={invoiceForm.invoice_number}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, invoice_number: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="PO Number"
+                  value={invoiceForm.po_number}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, po_number: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Contact Person"
+                  value={invoiceForm.contact_person}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, contact_person: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="tel"
+                  placeholder="Contact Number"
+                  value={invoiceForm.contact_number}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, contact_number: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={invoiceForm.email_address}
+                  onChange={(e) => setInvoiceForm({...invoiceForm, email_address: e.target.value})}
+                  className="px-4 py-2 border rounded md:col-span-2"
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="font-bold mb-4">Line Items</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Description"
+                    value={invoiceForm.description}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, description: e.target.value})}
+                    className="px-4 py-2 border rounded md:col-span-3"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Rate/Day"
+                    value={invoiceForm.rate_per_day}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, rate_per_day: parseFloat(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={invoiceForm.quantity}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, quantity: parseInt(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Days"
+                    value={invoiceForm.days}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, days: parseInt(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Excess"
+                    value={invoiceForm.excess}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, excess: parseFloat(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="font-bold mb-4">Banking Details</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Account Name"
+                    value={invoiceForm.account_name}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, account_name: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Bank Name"
+                    value={invoiceForm.bank_name}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, bank_name: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Branch Code"
+                    value={invoiceForm.branch_code}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, branch_code: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Account Number"
+                    value={invoiceForm.account_number}
+                    onChange={(e) => setInvoiceForm({...invoiceForm, account_number: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-6 border-t">
+                <button
+                  onClick={() => setShowInvoiceModal(false)}
+                  className="px-4 py-2 border rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveInvoice}
+                  className="px-4 py-2 bg-[#00A8E8] text-white rounded hover:bg-[#0087b8]"
+                >
+                  Save Invoice
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="font-semibold text-gray-900">Pending Payments</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Invoice #</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Customer</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Amount</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Due Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {invoices.filter(i => i.payment_status !== "paid").map((invoice) => (
-                <tr key={invoice.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{invoice.invoice_number}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{invoice.customer_name}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">E{invoice.total_amount.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {new Date(invoice.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
+      {/* Quotation Modal */}
+      {showQuotationModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b flex justify-between items-center">
+              <h3 className="text-2xl font-bold">Quotation Form</h3>
+              <button onClick={() => setShowQuotationModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  value={quotationForm.customer_name}
+                  onChange={(e) => setQuotationForm({...quotationForm, customer_name: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="date"
+                  value={quotationForm.date}
+                  onChange={(e) => setQuotationForm({...quotationForm, date: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Quotation ID"
+                  value={quotationForm.quotation_id}
+                  onChange={(e) => setQuotationForm({...quotationForm, quotation_id: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Type"
+                  value={quotationForm.customer_type}
+                  onChange={(e) => setQuotationForm({...quotationForm, customer_type: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Contact Person"
+                  value={quotationForm.contact_person}
+                  onChange={(e) => setQuotationForm({...quotationForm, contact_person: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="tel"
+                  placeholder="Contact Number"
+                  value={quotationForm.contact_number}
+                  onChange={(e) => setQuotationForm({...quotationForm, contact_number: e.target.value})}
+                  className="px-4 py-2 border rounded"
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={quotationForm.email_address}
+                  onChange={(e) => setQuotationForm({...quotationForm, email_address: e.target.value})}
+                  className="px-4 py-2 border rounded md:col-span-2"
+                />
+              </div>
 
-// Bad Debts Panel
-function BadDebtsPanel({ invoices }: { invoices: Invoice[] }) {
-  const badDebts = invoices.filter(i => i.status === "overdue" || i.payment_status === "overdue")
-  const totalBadDebts = badDebts.reduce((sum, i) => sum + (i.total_amount || 0), 0)
+              <div className="border-t pt-4">
+                <h4 className="font-bold mb-4">Line Items</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Description"
+                    value={quotationForm.description}
+                    onChange={(e) => setQuotationForm({...quotationForm, description: e.target.value})}
+                    className="px-4 py-2 border rounded md:col-span-3"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Rate/Day"
+                    value={quotationForm.rate_per_day}
+                    onChange={(e) => setQuotationForm({...quotationForm, rate_per_day: parseFloat(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={quotationForm.quantity}
+                    onChange={(e) => setQuotationForm({...quotationForm, quantity: parseInt(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Days"
+                    value={quotationForm.days}
+                    onChange={(e) => setQuotationForm({...quotationForm, days: parseInt(e.target.value)})}
+                    className="px-4 py-2 border rounded"
+                  />
+                </div>
+              </div>
 
-  return (
-    <div className="space-y-6">
-      <div className="bg-white border-2 border-red-200 rounded-xl p-6 bg-red-50">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-red-700 mb-1">Total Bad Debts</p>
-            <p className="text-3xl font-bold text-red-600">E{totalBadDebts.toLocaleString()}</p>
-            <p className="text-sm text-red-600 mt-1">{badDebts.length} invoices overdue</p>
+              <div className="border-t pt-4">
+                <h4 className="font-bold mb-4">Banking Details</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Account Name"
+                    value={quotationForm.account_name}
+                    onChange={(e) => setQuotationForm({...quotationForm, account_name: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Bank Name"
+                    value={quotationForm.bank_name}
+                    onChange={(e) => setQuotationForm({...quotationForm, bank_name: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Branch Code"
+                    value={quotationForm.branch_code}
+                    onChange={(e) => setQuotationForm({...quotationForm, branch_code: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Account Number"
+                    value={quotationForm.account_number}
+                    onChange={(e) => setQuotationForm({...quotationForm, account_number: e.target.value})}
+                    className="px-4 py-2 border rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-6 border-t">
+                <button
+                  onClick={() => setShowQuotationModal(false)}
+                  className="px-4 py-2 border rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveQuotation}
+                  className="px-4 py-2 bg-[#00A8E8] text-white rounded hover:bg-[#0087b8]"
+                >
+                  Save Quotation
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-            <AlertTriangle className="w-6 h-6 text-red-600" />
-          </div>
         </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="font-semibold text-gray-900">Overdue Invoices</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Invoice #</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Customer</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Amount</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-600 uppercase">Overdue Since</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {badDebts.map((invoice) => (
-                <tr key={invoice.id} className="hover:bg-red-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{invoice.invoice_number}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{invoice.customer_name}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-red-600">E{invoice.total_amount.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {new Date(invoice.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -85,10 +85,6 @@ export function VehicleGrid({ limit }: { limit?: number }) {
               <h3 className="text-xl font-bold text-[#1a4a8d]">{vehicle.name}</h3>
               <p className="text-sm text-gray-600 font-semibold capitalize">{vehicle.category}</p>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-bold text-[#00A8E8]">E{vehicle.price_per_day}</p>
-              <p className="text-xs text-gray-500">per day</p>
-            </div>
           </div>
           
           {vehicle.description && (
