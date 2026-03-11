@@ -18,16 +18,15 @@ export function Navbar() {
 
   return (
     <nav 
-      className="sticky top-0 z-50 bg-cover bg-center shadow-lg"
-      style={{ backgroundImage: 'url(/images/hero-car-bg.jpg)' }}
+      className="sticky top-0 z-50 bg-white shadow-lg border-b border-gray-200"
     >
-      <div className="bg-black/40 backdrop-blur-sm">
+      <div className="w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Mobile Menu Button - Left side on mobile */}
             <button 
               onClick={toggleMobileMenu}
-              className="md:hidden p-2 rounded-md text-white hover:bg-white/10 transition-colors"
+              className="md:hidden p-2 rounded-md text-[#1a4a8d] hover:bg-gray-100 transition-colors"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMobileMenuOpen ? (
@@ -43,7 +42,7 @@ export function Navbar() {
                 <Link
                   key={link.id}
                   href={link.href}
-                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:text-yellow-300 hover:bg-white/30 transition-all duration-200 shadow-md"
+                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-[#1a4a8d] hover:text-[#00A8E8] hover:bg-gray-100 transition-all duration-200"
                 >
                   {link.label}
                 </Link>
@@ -55,7 +54,7 @@ export function Navbar() {
               <div className="w-10 h-10 bg-[#00A8E8] rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-lg">F</span>
               </div>
-              <span className="font-bold text-lg text-white">Fenix Car Hire</span>
+              <span className="font-bold text-lg text-[#1a4a8d]">Fenix Car Hire</span>
             </Link>
 
             {/* Right Navigation - Desktop */}
@@ -64,7 +63,7 @@ export function Navbar() {
                 <Link
                   key={link.id}
                   href={link.href}
-                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:text-yellow-300 hover:bg-white/30 transition-all duration-200 shadow-md"
+                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-[#1a4a8d] hover:text-[#00A8E8] hover:bg-gray-100 transition-all duration-200"
                 >
                   {link.label}
                 </Link>
@@ -82,30 +81,30 @@ export function Navbar() {
             isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="px-4 pb-4 space-y-1 border-t border-white/10">
+          <div className="px-4 pb-4 space-y-1 border-t border-gray-200 bg-white">
             {navigationLinks.map((link) => (
               <Link
                 key={link.id}
                 href={link.href}
                 onClick={closeMobileMenu}
-                className="block px-4 py-3 rounded-lg text-white hover:bg-white/20 hover:text-yellow-300 transition-all font-extrabold text-lg shadow-sm"
+                className="block px-4 py-3 rounded-lg text-[#1a4a8d] hover:bg-gray-100 hover:text-[#00A8E8] transition-all font-extrabold text-lg"
               >
                 {link.label}
               </Link>
             ))}
             
             {/* Quick Contact in Mobile Menu */}
-            <div className="pt-4 mt-4 border-t border-white/10">
-              <p className="px-4 text-xs text-white/60 uppercase tracking-wide mb-2">Quick Contact</p>
+            <div className="pt-4 mt-4 border-t border-gray-200">
+              <p className="px-4 text-xs text-gray-600 uppercase tracking-wide mb-2">Quick Contact</p>
               <a
                 href="tel:+26824221045"
-                className="block px-4 py-2 text-[#00A8E8] hover:text-white transition-colors"
+                className="block px-4 py-2 text-[#00A8E8] hover:text-[#1a4a8d] transition-colors"
               >
                 +268 24221045
               </a>
               <a
                 href="mailto:reception@fenix.co.sz"
-                className="block px-4 py-2 text-[#00A8E8] hover:text-white transition-colors"
+                className="block px-4 py-2 text-[#00A8E8] hover:text-[#1a4a8d] transition-colors"
               >
                 reception@fenix.co.sz
               </a>
@@ -113,7 +112,7 @@ export function Navbar() {
                 href="https://www.facebook.com/share/1Gc2H9AFaJ/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block px-4 py-2 text-[#00A8E8] hover:text-white transition-colors"
+                className="block px-4 py-2 text-[#00A8E8] hover:text-[#1a4a8d] transition-colors"
               >
                 Follow us on Facebook
               </a>
