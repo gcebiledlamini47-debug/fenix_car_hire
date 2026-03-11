@@ -11,12 +11,12 @@
 
 body {
     background: #F4F6F9;
-    color: #333;
+    color: white;
 }
 
 /* NAVIGATION */
 nav {
-    background: blue;
+    background: white;
     padding: 15px 10%;
     display: flex;
     justify-content: space-between;
@@ -126,7 +126,7 @@ nav ul li a:hover {
     padding: 30px;
     width: 260px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     transition: 0.3s;
 }
 
@@ -149,7 +149,8 @@ form {
     margin: auto;
 }
 
-form input, form textarea {
+form input,
+form textarea {
     width: 100%;
     padding: 12px;
     margin: 10px 0;
@@ -164,7 +165,8 @@ form button {
     border: none;
     cursor: pointer;
 }
-.main-company-name{
+
+.main-company-name {
     font-size: 500px;
     font-weight: bold;
     letter-spacing: 3px;

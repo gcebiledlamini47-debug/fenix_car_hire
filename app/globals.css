@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --background: #F4F6F9;
-  --foreground: #333;
-  --primary: #1F3C88;
-  --secondary: #00A8E8;
-  --accent: #F4F6F9;
+  --background: #ffffff;
+  --foreground: #111827;
+  --primary: #ffffff;
+  --secondary: #2563eb;
+  --accent: #f3f4f6;
 }
 
 * {
@@ -23,6 +23,17 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  line-height: 1.6;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.bg-neutral-900 {
+  background: white !important;
+}
+
+.bg-black {
+  background: white !important;
+}
+
+.text-white {
+  color: #111827 !important;
 }

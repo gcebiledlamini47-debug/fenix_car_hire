@@ -33,32 +33,42 @@ export default function Contact() {
             <h2 className="text-2xl font-bold text-[#1a4a8d] mb-6">Quick Contact</h2>
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">📞 Phone</h3>
-                <a href="tel:+255756123456" className="text-[#00A8E8] hover:underline text-lg font-semibold">
-                  +255 756 123 456
+                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">Phone</h3>
+                <a href="tel:+26824221045" className="text-[#00A8E8] hover:underline text-lg font-semibold block">
+                  +268 24221045
+                </a>
+                <a href="tel:+26876829797" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                  +268 76829797 (Mobile)
                 </a>
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">✉️ Email</h3>
-                <a href="mailto:info@fenixcarhire.com" className="text-[#00A8E8] hover:underline text-lg font-semibold">
-                  info@fenixcarhire.com
+                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">Email</h3>
+                <a href="mailto:reception@fenix.co.sz" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                  reception@fenix.co.sz
                 </a>
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">📍 Main Office</h3>
+                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">Main Office</h3>
                 <p className="text-gray-700">
-                  Dar es Salaam, Tanzania
+                  Mbabane, Eswatini
                   <br />
                   Operating Hours: Mon-Sun, 8am - 6pm
                 </p>
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">💬 WhatsApp</h3>
-                <a href="https://wa.me/255756123456" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">WhatsApp</h3>
+                <a href="https://wa.me/26876829797" className="text-[#00A8E8] hover:underline text-lg font-semibold">
                   Chat with us on WhatsApp
+                </a>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">Facebook</h3>
+                <a href="https://www.facebook.com/share/1Gc2H9AFaJ/" target="_blank" rel="noopener noreferrer" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                  Follow us on Facebook
                 </a>
               </div>
             </div>
@@ -70,7 +80,7 @@ export default function Contact() {
       <Section className="bg-white">
         <h2 className="text-3xl font-bold text-[#1a4a8d] mb-8 text-center">Regional Offices</h2>
         <p className="text-center text-gray-700 mb-10 max-w-2xl mx-auto">
-          Visit any of our regional offices across Tanzania. We're here to serve you with professional service and
+          Visit any of our regional offices across Eswatini. We're here to serve you with professional service and
           support.
         </p>
         <RegionCard />

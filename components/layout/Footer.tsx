@@ -19,7 +19,7 @@ export function Footer() {
             <p className="text-gray-300 text-sm mb-4">Your trusted partner for reliable and affordable car rentals in Eswatini.</p>
             <div className="flex gap-4">
               <a 
-                href="https://www.facebook.com/fenixcarhire.eswatini" 
+                href="https://www.facebook.com/share/1Gc2H9AFaJ/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-[#00A8E8] hover:text-white transition-colors text-sm font-semibold"
