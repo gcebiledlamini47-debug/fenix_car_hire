@@ -42,7 +42,7 @@ export function Navbar() {
                 <Link
                   key={link.id}
                   href={link.href}
-                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:text-yellow-300 hover:bg-white/20 transition-all duration-200"
+                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:bg-white/20 transition-all duration-200"
                 >
                   {link.label}
                 </Link>
@@ -63,7 +63,7 @@ export function Navbar() {
                 <Link
                   key={link.id}
                   href={link.href}
-                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:text-yellow-300 hover:bg-white/20 transition-all duration-200"
+                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:bg-white/20 transition-all duration-200"
                 >
                   {link.label}
                 </Link>
@@ -87,7 +87,7 @@ export function Navbar() {
                 key={link.id}
                 href={link.href}
                 onClick={closeMobileMenu}
-                className="block px-4 py-3 rounded-lg text-white hover:bg-white/20 hover:text-yellow-300 transition-all font-extrabold text-lg"
+                className="block px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-all font-extrabold text-lg"
               >
                 {link.label}
               </Link>
