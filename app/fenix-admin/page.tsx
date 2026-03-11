@@ -1,435 +1,594 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import type { User } from "@supabase/supabase-js"
-import { 
-  LayoutDashboard, Car, CalendarCheck, FileText, Receipt, 
-  AlertTriangle, CreditCard, LogOut, Menu, X, Bell, 
-  TrendingUp, Clock, CheckCircle, XCircle, DollarSign, Users, Plus, Edit2, Trash2
-} from "lucide-react"
-
-type Tab = "overview" | "bookings" | "vehicles" | "invoices" | "quotations" | "check-sheets" | "payments" | "bad-debts"
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { Menu, X, Plus, Edit2, Trash2, Save, AlertCircle } from 'lucide-react'
 
 export default function AdminDashboard() {
-  const router = useRouter()
-  const supabase = createClient()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<Tab>("overview")
+  const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  
-  // Invoices state
-  const [invoices, setInvoices] = useState<any[]>([])
-  const [editingInvoice, setEditingInvoice] = useState<any | null>(null)
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+
+  // Invoice State
+  const [invoices, setInvoices] = useState([])
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false)
+  const [editingInvoice, setEditingInvoice] = useState(null)
   const [invoiceForm, setInvoiceForm] = useState({
-    customer_name: "",
+    customer_name: '',
+    customer_email: '',
+    invoice_number: '',
     date: new Date().toISOString().split('T')[0],
-    invoice_number: "",
-    po_number: "",
-    contact_person: "",
-    contact_number: "",
-    email_address: "",
-    description: "",
-    rate_per_day: 0,
-    quantity: 1,
-    kms_per_day: 0,
-    days: 0,
-    excess: 0,
-    total: 0,
+    rental_type: 'Car Rental',
+    contact_person: '',
+    contact_number: '',
+    email_address: '',
+    items: [{ description: 'Rental', rate_per_day: 0, quantity: 1, km_free: 0, days: 1, excess: 0, total: 0 }],
     subtotal: 0,
+    vat_rate: 15,
     vat_amount: 0,
-    account_name: "",
-    bank_name: "",
-    branch_code: "",
-    account_number: "",
-    status: "draft"
+    total: 0,
+    bank_account_name: 'Semperfi Investments (Pty)',
+    bank_name: 'Standard Bank Swaziland',
+    branch_code: '663164',
+    account_number: '9110005689573'
   })
 
-  // Quotations state
-  const [quotations, setQuotations] = useState<any[]>([])
-  const [editingQuotation, setEditingQuotation] = useState<any | null>(null)
-  const [showQuotationModal, setShowQuotationModal] = useState(false)
+  // Quotation State
+  const [quotations, setQuotations] = useState([])
+  const [showQuotationForm, setShowQuotationForm] = useState(false)
+  const [editingQuotation, setEditingQuotation] = useState(null)
   const [quotationForm, setQuotationForm] = useState({
-    customer_name: "",
+    customer_name: '',
+    customer_email: '',
+    quotation_id: '',
     date: new Date().toISOString().split('T')[0],
-    quotation_id: "",
-    customer_type: "",
-    contact_person: "",
-    contact_number: "",
-    email_address: "",
-    description: "",
-    rate_per_day: 0,
-    quantity: 1,
-    kms_per_day: 0,
-    days: 0,
-    excess: 0,
-    total: 0,
+    rental_type: 'Car Rental',
+    contact_person: '',
+    contact_number: '',
+    email_address: '',
+    items: [{ description: 'Rental', rate_per_day: 0, quantity: 1, km_free: 0, days: 1, excess: 0, total: 0 }],
     subtotal: 0,
+    vat_rate: 15,
     vat_amount: 0,
-    account_name: "",
-    bank_name: "",
-    branch_code: "",
-    account_number: "",
-    status: "pending"
+    total: 0,
+    status: 'pending'
   })
 
-  // Check Sheet state
-  const [checkSheets, setCheckSheets] = useState<any[]>([])
-  const [editingCheckSheet, setEditingCheckSheet] = useState<any | null>(null)
-  const [showCheckSheetModal, setShowCheckSheetModal] = useState(false)
+  // Check Sheet State
+  const [checkSheets, setCheckSheets] = useState([])
+  const [showCheckSheetForm, setShowCheckSheetForm] = useState(false)
+  const [editingCheckSheet, setEditingCheckSheet] = useState(null)
   const [checkSheetForm, setCheckSheetForm] = useState({
-    vehicle_name: "",
-    plate_number: "",
-    pre_rental_date: new Date().toISOString().split('T')[0],
-    post_rental_date: "",
-    odometer_pre: 0,
-    odometer_post: 0,
-    fuel_level_pre: "Full",
-    fuel_level_post: "Full",
-    tire_condition_pre: "Good",
-    tire_condition_post: "Good",
-    headlights: true,
-    wipers: true,
-    battery: true,
-    brakes: true,
-    ac: true,
-    lights_interior: true,
-    door_locks: true,
-    seatbelts: true,
-    mirrors: true,
-    windshield: true,
-    body_damage: "",
-    interior_damage: "",
-    customer_name: "",
-    signature_pre: "",
-    signature_post: "",
-    notes: ""
+    pre_rental: {
+      vehicle_number: '',
+      customer_name: '',
+      car_description: '',
+      mileage: '',
+      fuel_level: '',
+      tyre_condition_front_left: '',
+      tyre_condition_front_right: '',
+      tyre_condition_back_left: '',
+      tyre_condition_back_right: '',
+      scratches: '',
+      dents: '',
+      windscreen: '',
+      mirrors: '',
+      lights: '',
+      interior: '',
+      additional_info: ''
+    },
+    post_rental: {
+      mileage: '',
+      fuel_level: '',
+      tyre_condition_front_left: '',
+      tyre_condition_front_right: '',
+      tyre_condition_back_left: '',
+      tyre_condition_back_right: '',
+      scratches: '',
+      dents: '',
+      windscreen: '',
+      mirrors: '',
+      lights: '',
+      interior: '',
+      damage_description: '',
+      charges: 0
+    },
+    signature: '',
+    date: new Date().toISOString().split('T')[0]
   })
+
+  // Vehicles State
+  const [vehicles, setVehicles] = useState([])
+  const [showVehicleForm, setShowVehicleForm] = useState(false)
+  const [vehicleForm, setVehicleForm] = useState({
+    name: '',
+    category: '',
+    registration_number: '',
+    mileage: 0,
+    is_booked: false
+  })
+
+  // Bookings State
+  const [bookings, setBookings] = useState([])
 
   useEffect(() => {
-    checkAuth()
+    fetchAllData()
   }, [])
 
-  const checkAuth = async () => {
+  const fetchAllData = async () => {
+    setLoading(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push("/fenix-admin/login")
-        return
-      }
-      setUser(user)
-      fetchData()
+      const [invoicesRes, quotationsRes, checkSheetsRes, vehiclesRes, bookingsRes] = await Promise.all([
+        supabase.from('invoices').select('*'),
+        supabase.from('quotations').select('*'),
+        supabase.from('check_sheets').select('*'),
+        supabase.from('vehicles').select('*'),
+        supabase.from('bookings').select('*')
+      ])
+
+      setInvoices(invoicesRes.data || [])
+      setQuotations(quotationsRes.data || [])
+      setCheckSheets(checkSheetsRes.data || [])
+      setVehicles(vehiclesRes.data || [])
+      setBookings(bookingsRes.data || [])
     } catch (error) {
-      console.error("Auth error:", error)
-      router.push("/fenix-admin/login")
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchData = async () => {
-    try {
-      // Fetch invoices
-      const { data: invoicesData } = await supabase
-        .from("invoices")
-        .select("*")
-        .order("created_at", { ascending: false })
-      
-      // Fetch quotations
-      const { data: quotationsData } = await supabase
-        .from("quotations")
-        .select("*")
-        .order("created_at", { ascending: false })
-
-      setInvoices(invoicesData || [])
-      setQuotations(quotationsData || [])
-    } catch (error) {
-      console.error("Error fetching data:", error)
-    }
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push("/fenix-admin/login")
-  }
-
+  // Invoice CRUD
   const handleSaveInvoice = async () => {
     try {
       if (editingInvoice) {
-        await supabase
-          .from("invoices")
-          .update(invoiceForm)
-          .eq("id", editingInvoice.id)
+        await supabase.from('invoices').update(invoiceForm).eq('id', editingInvoice.id)
       } else {
-        await supabase
-          .from("invoices")
-          .insert([invoiceForm])
+        await supabase.from('invoices').insert([invoiceForm])
       }
-      setShowInvoiceModal(false)
+      await fetchAllData()
+      setShowInvoiceForm(false)
       setEditingInvoice(null)
-      setInvoiceForm({
-        customer_name: "",
-        date: new Date().toISOString().split('T')[0],
-        invoice_number: "",
-        po_number: "",
-        contact_person: "",
-        contact_number: "",
-        email_address: "",
-        description: "",
-        rate_per_day: 0,
-        quantity: 1,
-        kms_per_day: 0,
-        days: 0,
-        excess: 0,
-        total: 0,
-        subtotal: 0,
-        vat_amount: 0,
-        account_name: "",
-        bank_name: "",
-        branch_code: "",
-        account_number: "",
-        status: "draft"
-      })
-      fetchData()
+      setInvoiceForm(getDefaultInvoice())
     } catch (error) {
-      console.error("Error saving invoice:", error)
+      console.error('Error saving invoice:', error)
     }
   }
 
+  const handleDeleteInvoice = async (id) => {
+    if (window.confirm('Delete this invoice?')) {
+      try {
+        await supabase.from('invoices').delete().eq('id', id)
+        await fetchAllData()
+      } catch (error) {
+        console.error('Error deleting invoice:', error)
+      }
+    }
+  }
+
+  // Quotation CRUD
   const handleSaveQuotation = async () => {
     try {
       if (editingQuotation) {
-        await supabase
-          .from("quotations")
-          .update(quotationForm)
-          .eq("id", editingQuotation.id)
+        await supabase.from('quotations').update(quotationForm).eq('id', editingQuotation.id)
       } else {
-        await supabase
-          .from("quotations")
-          .insert([quotationForm])
+        await supabase.from('quotations').insert([quotationForm])
       }
-      setShowQuotationModal(false)
+      await fetchAllData()
+      setShowQuotationForm(false)
       setEditingQuotation(null)
-      setQuotationForm({
-        customer_name: "",
-        date: new Date().toISOString().split('T')[0],
-        quotation_id: "",
-        customer_type: "",
-        contact_person: "",
-        contact_number: "",
-        email_address: "",
-        description: "",
-        rate_per_day: 0,
-        quantity: 1,
-        kms_per_day: 0,
-        days: 0,
-        excess: 0,
-        total: 0,
-        subtotal: 0,
-        vat_amount: 0,
-        account_name: "",
-        bank_name: "",
-        branch_code: "",
-        account_number: "",
-        status: "pending"
-      })
-      fetchData()
+      setQuotationForm(getDefaultQuotation())
     } catch (error) {
-      console.error("Error saving quotation:", error)
+      console.error('Error saving quotation:', error)
     }
   }
 
-  const handleDeleteInvoice = async (id: string) => {
-    if (confirm("Are you sure you want to delete this invoice?")) {
+  const handleDeleteQuotation = async (id) => {
+    if (window.confirm('Delete this quotation?')) {
       try {
-        await supabase.from("invoices").delete().eq("id", id)
-        fetchData()
+        await supabase.from('quotations').delete().eq('id', id)
+        await fetchAllData()
       } catch (error) {
-        console.error("Error deleting invoice:", error)
+        console.error('Error deleting quotation:', error)
       }
     }
   }
 
-  const handleDeleteQuotation = async (id: string) => {
-    if (confirm("Are you sure you want to delete this quotation?")) {
+  // Check Sheet CRUD
+  const handleSaveCheckSheet = async () => {
+    try {
+      if (editingCheckSheet) {
+        await supabase.from('check_sheets').update(checkSheetForm).eq('id', editingCheckSheet.id)
+      } else {
+        await supabase.from('check_sheets').insert([checkSheetForm])
+      }
+      await fetchAllData()
+      setShowCheckSheetForm(false)
+      setEditingCheckSheet(null)
+      setCheckSheetForm(getDefaultCheckSheet())
+    } catch (error) {
+      console.error('Error saving check sheet:', error)
+    }
+  }
+
+  const handleDeleteCheckSheet = async (id) => {
+    if (window.confirm('Delete this check sheet?')) {
       try {
-        await supabase.from("quotations").delete().eq("id", id)
-        fetchData()
+        await supabase.from('check_sheets').delete().eq('id', id)
+        await fetchAllData()
       } catch (error) {
-        console.error("Error deleting quotation:", error)
+        console.error('Error deleting check sheet:', error)
       }
     }
   }
+
+  // Vehicle CRUD
+  const handleSaveVehicle = async () => {
+    try {
+      await supabase.from('vehicles').insert([vehicleForm])
+      await fetchAllData()
+      setShowVehicleForm(false)
+      setVehicleForm({ name: '', category: '', registration_number: '', mileage: 0, is_booked: false })
+    } catch (error) {
+      console.error('Error saving vehicle:', error)
+    }
+  }
+
+  const handleDeleteVehicle = async (id) => {
+    if (window.confirm('Delete this vehicle?')) {
+      try {
+        await supabase.from('vehicles').delete().eq('id', id)
+        await fetchAllData()
+      } catch (error) {
+        console.error('Error deleting vehicle:', error)
+      }
+    }
+  }
+
+  const toggleVehicleAvailability = async (vehicle) => {
+    try {
+      await supabase.from('vehicles').update({ is_booked: !vehicle.is_booked }).eq('id', vehicle.id)
+      await fetchAllData()
+    } catch (error) {
+      console.error('Error updating vehicle:', error)
+    }
+  }
+
+  const getDefaultInvoice = () => ({
+    customer_name: '',
+    customer_email: '',
+    invoice_number: '',
+    date: new Date().toISOString().split('T')[0],
+    rental_type: 'Car Rental',
+    contact_person: '',
+    contact_number: '',
+    email_address: '',
+    items: [{ description: 'Rental', rate_per_day: 0, quantity: 1, km_free: 0, days: 1, excess: 0, total: 0 }],
+    subtotal: 0,
+    vat_rate: 15,
+    vat_amount: 0,
+    total: 0,
+    bank_account_name: 'Semperfi Investments (Pty)',
+    bank_name: 'Standard Bank Swaziland',
+    branch_code: '663164',
+    account_number: '9110005689573'
+  })
+
+  const getDefaultQuotation = () => ({
+    customer_name: '',
+    customer_email: '',
+    quotation_id: '',
+    date: new Date().toISOString().split('T')[0],
+    rental_type: 'Car Rental',
+    contact_person: '',
+    contact_number: '',
+    email_address: '',
+    items: [{ description: 'Rental', rate_per_day: 0, quantity: 1, km_free: 0, days: 1, excess: 0, total: 0 }],
+    subtotal: 0,
+    vat_rate: 15,
+    vat_amount: 0,
+    total: 0,
+    status: 'pending'
+  })
+
+  const getDefaultCheckSheet = () => ({
+    pre_rental: {
+      vehicle_number: '',
+      customer_name: '',
+      car_description: '',
+      mileage: '',
+      fuel_level: '',
+      tyre_condition_front_left: '',
+      tyre_condition_front_right: '',
+      tyre_condition_back_left: '',
+      tyre_condition_back_right: '',
+      scratches: '',
+      dents: '',
+      windscreen: '',
+      mirrors: '',
+      lights: '',
+      interior: '',
+      additional_info: ''
+    },
+    post_rental: {
+      mileage: '',
+      fuel_level: '',
+      tyre_condition_front_left: '',
+      tyre_condition_front_right: '',
+      tyre_condition_back_left: '',
+      tyre_condition_back_right: '',
+      scratches: '',
+      dents: '',
+      windscreen: '',
+      mirrors: '',
+      lights: '',
+      interior: '',
+      damage_description: '',
+      charges: 0
+    },
+    signature: '',
+    date: new Date().toISOString().split('T')[0]
+  })
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>
-  }
-
-  if (!user) {
-    return null
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white shadow-lg transition-all duration-300 overflow-y-auto`}>
-        <div className="p-4 border-b">
-          <h1 className={`font-bold text-[#1a4a8d] ${!sidebarOpen && 'text-center'}`}>
-            {sidebarOpen ? 'Fenix Admin' : 'FA'}
-          </h1>
+      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#1a4a8d] text-white transition-all duration-300 overflow-y-auto`}>
+        <div className="p-4 border-b border-blue-700">
+          <div className="flex items-center justify-between">
+            {sidebarOpen && <h1 className="text-xl font-bold">Fenix Admin</h1>}
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-blue-700 rounded">
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
-        
+
         <nav className="p-4 space-y-2">
-          {[
-            { id: 'overview' as Tab, label: 'Dashboard', icon: LayoutDashboard },
-            { id: 'bookings' as Tab, label: 'Bookings', icon: CalendarCheck },
-            { id: 'vehicles' as Tab, label: 'Vehicles', icon: Car },
-            { id: 'invoices' as Tab, label: 'Invoices', icon: Receipt },
-            { id: 'quotations' as Tab, label: 'Quotations', icon: FileText },
-            { id: 'check-sheets' as Tab, label: 'Check Sheets', icon: CheckCircle },
-            { id: 'payments' as Tab, label: 'Payments', icon: CreditCard },
-            { id: 'bad-debts' as Tab, label: 'Bad Debts', icon: AlertTriangle },
-          ].map((item) => (
+          {['overview', 'bookings', 'vehicles', 'invoices', 'quotations', 'checksheets'].map((tab) => (
             <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                activeTab === item.id
-                  ? 'bg-[#00A8E8] text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              } ${!sidebarOpen && 'justify-center'}`}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`w-full text-left px-4 py-3 rounded transition-colors ${
+                activeTab === tab ? 'bg-blue-700' : 'hover:bg-blue-600'
+              }`}
             >
-              <item.icon className="w-5 h-5" />
-              {sidebarOpen && item.label}
+              {sidebarOpen ? tab.charAt(0).toUpperCase() + tab.slice(1) : tab.charAt(0).toUpperCase()}
             </button>
           ))}
         </nav>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b p-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            <h2 className="text-2xl font-bold text-gray-800">
-              {activeTab === 'overview' && 'Dashboard'}
-              {activeTab === 'bookings' && 'Bookings'}
-              {activeTab === 'vehicles' && 'Vehicles'}
-              {activeTab === 'invoices' && 'Invoices'}
-              {activeTab === 'quotations' && 'Quotations'}
-              {activeTab === 'check-sheets' && 'Vehicle Check Sheets'}
-              {activeTab === 'payments' && 'Payments'}
-              {activeTab === 'bad-debts' && 'Bad Debts'}
-            </h2>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-600">{user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-auto p-6">
-          {/* INVOICES TAB */}
-          {activeTab === 'invoices' && (
+      <div className="flex-1 overflow-auto">
+        <div className="p-8">
+          {/* Overview Tab */}
+          {activeTab === 'overview' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">Invoices</h3>
+              <h2 className="text-3xl font-bold text-gray-800 mb-8">Dashboard Overview</h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <p className="text-gray-600 text-sm">Total Invoices</p>
+                  <p className="text-3xl font-bold text-blue-600">{invoices.length}</p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <p className="text-gray-600 text-sm">Total Quotations</p>
+                  <p className="text-3xl font-bold text-green-600">{quotations.length}</p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <p className="text-gray-600 text-sm">Total Vehicles</p>
+                  <p className="text-3xl font-bold text-purple-600">{vehicles.length}</p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <p className="text-gray-600 text-sm">Available Vehicles</p>
+                  <p className="text-3xl font-bold text-orange-600">{vehicles.filter(v => !v.is_booked).length}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bookings Tab */}
+          {activeTab === 'bookings' && (
+            <div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-8">Booking Requests</h2>
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-100 border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Vehicle</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Check-in</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Check-out</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookings.map((booking) => (
+                      <tr key={booking.id} className="border-b hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{booking.customer_name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{booking.customer_email}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{booking.vehicle_name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{new Date(booking.check_in_date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{new Date(booking.check_out_date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {booking.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Vehicles Tab */}
+          {activeTab === 'vehicles' && (
+            <div>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-800">Vehicle Management</h2>
                 <button
-                  onClick={() => {
-                    setEditingInvoice(null)
-                    setInvoiceForm({
-                      customer_name: "",
-                      date: new Date().toISOString().split('T')[0],
-                      invoice_number: "",
-                      po_number: "",
-                      contact_person: "",
-                      contact_number: "",
-                      email_address: "",
-                      description: "",
-                      rate_per_day: 0,
-                      quantity: 1,
-                      kms_per_day: 0,
-                      days: 0,
-                      excess: 0,
-                      total: 0,
-                      subtotal: 0,
-                      vat_amount: 0,
-                      account_name: "",
-                      bank_name: "",
-                      branch_code: "",
-                      account_number: "",
-                      status: "draft"
-                    })
-                    setShowInvoiceModal(true)
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#00A8E8] text-white rounded-lg hover:bg-[#0087b8]"
+                  onClick={() => setShowVehicleForm(!showVehicleForm)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
                 >
-                  <Plus className="w-4 h-4" />
-                  Create Invoice
+                  <Plus size={20} /> Add Vehicle
                 </button>
               </div>
 
-              {/* Invoices Table */}
+              {showVehicleForm && (
+                <div className="bg-white p-6 rounded-lg shadow mb-8">
+                  <h3 className="text-xl font-bold mb-4">Add New Vehicle</h3>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Vehicle Name"
+                      value={vehicleForm.name}
+                      onChange={(e) => setVehicleForm({ ...vehicleForm, name: e.target.value })}
+                      className="border border-gray-300 rounded px-4 py-2"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Category"
+                      value={vehicleForm.category}
+                      onChange={(e) => setVehicleForm({ ...vehicleForm, category: e.target.value })}
+                      className="border border-gray-300 rounded px-4 py-2"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Registration Number"
+                      value={vehicleForm.registration_number}
+                      onChange={(e) => setVehicleForm({ ...vehicleForm, registration_number: e.target.value })}
+                      className="border border-gray-300 rounded px-4 py-2"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Current Mileage"
+                      value={vehicleForm.mileage}
+                      onChange={(e) => setVehicleForm({ ...vehicleForm, mileage: parseInt(e.target.value) })}
+                      className="border border-gray-300 rounded px-4 py-2"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveVehicle}
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                      Save Vehicle
+                    </button>
+                    <button
+                      onClick={() => setShowVehicleForm(false)}
+                      className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {vehicles.map((vehicle) => (
+                  <div key={vehicle.id} className="bg-white p-6 rounded-lg shadow">
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">{vehicle.name}</h3>
+                    <p className="text-gray-600 text-sm mb-1">Category: {vehicle.category}</p>
+                    <p className="text-gray-600 text-sm mb-1">Reg: {vehicle.registration_number}</p>
+                    <p className="text-gray-600 text-sm mb-4">Mileage: {vehicle.mileage} km</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => toggleVehicleAvailability(vehicle)}
+                        className={`flex-1 px-3 py-2 rounded text-sm font-semibold text-white ${
+                          vehicle.is_booked ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
+                        }`}
+                      >
+                        {vehicle.is_booked ? 'Mark Available' : 'Mark Booked'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteVehicle(vehicle.id)}
+                        className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Invoices Tab */}
+          {activeTab === 'invoices' && (
+            <div>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-800">Invoices</h2>
+                <button
+                  onClick={() => {
+                    setEditingInvoice(null)
+                    setInvoiceForm(getDefaultInvoice())
+                    setShowInvoiceForm(!showInvoiceForm)
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <Plus size={20} /> Create Invoice
+                </button>
+              </div>
+
+              {showInvoiceForm && (
+                <InvoiceFormComponent
+                  form={invoiceForm}
+                  setForm={setInvoiceForm}
+                  onSave={handleSaveInvoice}
+                  onCancel={() => setShowInvoiceForm(false)}
+                />
+              )}
+
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-100 border-b">
                     <tr>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Invoice #</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {invoices.map((invoice) => (
                       <tr key={invoice.id} className="border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm">{invoice.invoice_number}</td>
-                        <td className="px-6 py-4 text-sm">{invoice.customer_name}</td>
-                        <td className="px-6 py-4 text-sm font-semibold">E {invoice.total}</td>
-                        <td className="px-6 py-4 text-sm">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
-                            invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>
-                            {invoice.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm">{invoice.date}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{invoice.invoice_number}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{invoice.customer_name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{invoice.date}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">E{invoice.total}</td>
                         <td className="px-6 py-4 text-sm flex gap-2">
                           <button
                             onClick={() => {
                               setEditingInvoice(invoice)
                               setInvoiceForm(invoice)
-                              setShowInvoiceModal(true)
+                              setShowInvoiceForm(true)
                             }}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                            className="text-blue-600 hover:text-blue-800"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 size={18} />
                           </button>
                           <button
                             onClick={() => handleDeleteInvoice(invoice.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            className="text-red-600 hover:text-red-800"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 size={18} />
                           </button>
                         </td>
                       </tr>
@@ -440,91 +599,74 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* QUOTATIONS TAB */}
+          {/* Quotations Tab */}
           {activeTab === 'quotations' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">Quotations</h3>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-800">Quotations</h2>
                 <button
                   onClick={() => {
                     setEditingQuotation(null)
-                    setQuotationForm({
-                      customer_name: "",
-                      date: new Date().toISOString().split('T')[0],
-                      quotation_id: "",
-                      customer_type: "",
-                      contact_person: "",
-                      contact_number: "",
-                      email_address: "",
-                      description: "",
-                      rate_per_day: 0,
-                      quantity: 1,
-                      kms_per_day: 0,
-                      days: 0,
-                      excess: 0,
-                      total: 0,
-                      subtotal: 0,
-                      vat_amount: 0,
-                      account_name: "",
-                      bank_name: "",
-                      branch_code: "",
-                      account_number: "",
-                      status: "pending"
-                    })
-                    setShowQuotationModal(true)
+                    setQuotationForm(getDefaultQuotation())
+                    setShowQuotationForm(!showQuotationForm)
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#00A8E8] text-white rounded-lg hover:bg-[#0087b8]"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
                 >
-                  <Plus className="w-4 h-4" />
-                  Create Quotation
+                  <Plus size={20} /> Create Quotation
                 </button>
               </div>
 
-              {/* Quotations Table */}
+              {showQuotationForm && (
+                <QuotationFormComponent
+                  form={quotationForm}
+                  setForm={setQuotationForm}
+                  onSave={handleSaveQuotation}
+                  onCancel={() => setShowQuotationForm(false)}
+                />
+              )}
+
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-100 border-b">
                     <tr>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Quotation #</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {quotations.map((quotation) => (
                       <tr key={quotation.id} className="border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm">{quotation.quotation_id}</td>
-                        <td className="px-6 py-4 text-sm">{quotation.customer_name}</td>
-                        <td className="px-6 py-4 text-sm font-semibold">E {quotation.total}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{quotation.quotation_id}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{quotation.customer_name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{quotation.date}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">E{quotation.total}</td>
                         <td className="px-6 py-4 text-sm">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            quotation.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                            quotation.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-gray-100 text-gray-700'
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            quotation.status === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                           }`}>
                             {quotation.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm">{quotation.date}</td>
                         <td className="px-6 py-4 text-sm flex gap-2">
                           <button
                             onClick={() => {
                               setEditingQuotation(quotation)
                               setQuotationForm(quotation)
-                              setShowQuotationModal(true)
+                              setShowQuotationForm(true)
                             }}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                            className="text-blue-600 hover:text-blue-800"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 size={18} />
                           </button>
                           <button
                             onClick={() => handleDeleteQuotation(quotation.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            className="text-red-600 hover:text-red-800"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 size={18} />
                           </button>
                         </td>
                       </tr>
@@ -535,360 +677,549 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* CHECK SHEETS TAB */}
-          {activeTab === 'check-sheets' && (
+          {/* Check Sheets Tab */}
+          {activeTab === 'checksheets' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">Vehicle Check Sheets</h3>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-800">Vehicle Check Sheets</h2>
                 <button
                   onClick={() => {
                     setEditingCheckSheet(null)
-                    setCheckSheetForm({
-                      vehicle_name: "",
-                      plate_number: "",
-                      pre_rental_date: new Date().toISOString().split('T')[0],
-                      post_rental_date: "",
-                      odometer_pre: 0,
-                      odometer_post: 0,
-                      fuel_level_pre: "Full",
-                      fuel_level_post: "Full",
-                      tire_condition_pre: "Good",
-                      tire_condition_post: "Good",
-                      headlights: true,
-                      wipers: true,
-                      battery: true,
-                      brakes: true,
-                      ac: true,
-                      lights_interior: true,
-                      door_locks: true,
-                      seatbelts: true,
-                      mirrors: true,
-                      windshield: true,
-                      body_damage: "",
-                      interior_damage: "",
-                      customer_name: "",
-                      signature_pre: "",
-                      signature_post: "",
-                      notes: ""
-                    })
-                    setShowCheckSheetModal(true)
+                    setCheckSheetForm(getDefaultCheckSheet())
+                    setShowCheckSheetForm(!showCheckSheetForm)
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#00A8E8] text-white rounded-lg hover:bg-[#0087b8]"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
                 >
-                  <Plus className="w-4 h-4" />
-                  Create Check Sheet
+                  <Plus size={20} /> Create Check Sheet
                 </button>
               </div>
-              <p className="text-gray-600">Check sheet management coming soon...</p>
+
+              {showCheckSheetForm && (
+                <CheckSheetFormComponent
+                  form={checkSheetForm}
+                  setForm={setCheckSheetForm}
+                  onSave={handleSaveCheckSheet}
+                  onCancel={() => setShowCheckSheetForm(false)}
+                />
+              )}
+
+              <div className="space-y-4">
+                {checkSheets.map((sheet) => (
+                  <div key={sheet.id} className="bg-white p-6 rounded-lg shadow">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <p className="text-gray-600 text-sm">Vehicle: {sheet.pre_rental.vehicle_number}</p>
+                        <p className="text-gray-600 text-sm">Customer: {sheet.pre_rental.customer_name}</p>
+                        <p className="text-gray-600 text-sm">Date: {sheet.date}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingCheckSheet(sheet)
+                            setCheckSheetForm(sheet)
+                            setShowCheckSheetForm(true)
+                          }}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCheckSheet(sheet.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* Invoice Modal */}
-      {showInvoiceModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h3 className="text-2xl font-bold">Invoice Form</h3>
-              <button onClick={() => setShowInvoiceModal(false)} className="text-gray-500 hover:text-gray-700">
-                <X className="w-6 h-6" />
-              </button>
+// Invoice Form Component
+function InvoiceFormComponent({ form, setForm, onSave, onCancel }) {
+  const handleItemChange = (index, field, value) => {
+    const newItems = [...form.items]
+    newItems[index][field] = value
+    setForm({ ...form, items: newItems })
+  }
+
+  const calculateTotal = () => {
+    const subtotal = form.items.reduce((sum, item) => sum + (item.total || 0), 0)
+    const vat = (subtotal * form.vat_rate) / 100
+    return { subtotal, vat, total: subtotal + vat }
+  }
+
+  const { subtotal, vat, total } = calculateTotal()
+
+  return (
+    <div className="bg-white p-8 rounded-lg shadow mb-8 border-2 border-gray-300">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-[#1a4a8d]">FENIX CAR HIRE</h1>
+        <p className="text-gray-600 text-sm">For All your rental Problems</p>
+        <p className="text-gray-600 text-xs mt-2">P.O. Box 7909 Mbabane, Eswatini | Lilanga Complex, Lilumemba Street, Sidwashini</p>
+        <p className="text-gray-600 text-xs">Call: (+268) 7682797, 7686935 | Fax: (+268) 2422 1045 | Email: reception@fenix.co.sz</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-8 mb-8">
+        <div>
+          <p className="font-bold text-gray-800">Customer:</p>
+          <input
+            type="text"
+            value={form.customer_name}
+            onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+            className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+          />
+        </div>
+        <div>
+          <p className="font-bold text-gray-800">Invoice Number:</p>
+          <input
+            type="text"
+            value={form.invoice_number}
+            onChange={(e) => setForm({ ...form, invoice_number: e.target.value })}
+            className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+          />
+        </div>
+        <div>
+          <p className="font-bold text-gray-800">Date:</p>
+          <input
+            type="date"
+            value={form.date}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+          />
+        </div>
+      </div>
+
+      <table className="w-full border-collapse mb-8">
+        <thead>
+          <tr className="border-2 border-gray-800">
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Description</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Rate/day</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Quantity</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Km Free</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Days</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Excess</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {form.items.map((item, index) => (
+            <tr key={index} className="border-2 border-gray-800">
+              <td className="border border-gray-800 px-3 py-2">
+                <input
+                  type="text"
+                  value={item.description}
+                  onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
+                />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
+                <input
+                  type="number"
+                  value={item.rate_per_day}
+                  onChange={(e) => handleItemChange(index, 'rate_per_day', parseFloat(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
+                />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
+                <input
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
+                />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
+                <input
+                  type="number"
+                  value={item.km_free}
+                  onChange={(e) => handleItemChange(index, 'km_free', parseInt(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
+                />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
+                <input
+                  type="number"
+                  value={item.days}
+                  onChange={(e) => handleItemChange(index, 'days', parseInt(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
+                />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
+                <input
+                  type="number"
+                  value={item.excess}
+                  onChange={(e) => handleItemChange(index, 'excess', parseFloat(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
+                />
+              </td>
+              <td className="border border-gray-800 px-3 py-2 text-sm font-semibold">
+                E {(item.rate_per_day * item.quantity + item.excess).toFixed(2)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        <div>
+          <p className="font-bold text-gray-800 mb-2">Banking Details:</p>
+          <div className="text-sm text-gray-700">
+            <p>Account Name: {form.bank_account_name}</p>
+            <p>Bank Name: {form.bank_name}</p>
+            <p>Branch code: {form.branch_code}</p>
+            <p>Account Number: {form.account_number}</p>
+          </div>
+        </div>
+        <div>
+          <div className="text-right space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Subtotal:</span>
+              <span className="font-bold">E {subtotal.toFixed(2)}</span>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="Customer Name"
-                  value={invoiceForm.customer_name}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, customer_name: e.target.value})}
-                  className="px-4 py-2 border rounded"
-                />
-                <input
-                  type="date"
-                  value={invoiceForm.date}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, date: e.target.value})}
-                  className="px-4 py-2 border rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Invoice Number"
-                  value={invoiceForm.invoice_number}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, invoice_number: e.target.value})}
-                  className="px-4 py-2 border rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="PO Number"
-                  value={invoiceForm.po_number}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, po_number: e.target.value})}
-                  className="px-4 py-2 border rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Contact Person"
-                  value={invoiceForm.contact_person}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, contact_person: e.target.value})}
-                  className="px-4 py-2 border rounded"
-                />
-                <input
-                  type="tel"
-                  placeholder="Contact Number"
-                  value={invoiceForm.contact_number}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, contact_number: e.target.value})}
-                  className="px-4 py-2 border rounded"
-                />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  value={invoiceForm.email_address}
-                  onChange={(e) => setInvoiceForm({...invoiceForm, email_address: e.target.value})}
-                  className="px-4 py-2 border rounded md:col-span-2"
-                />
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-bold mb-4">Line Items</h4>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Description"
-                    value={invoiceForm.description}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, description: e.target.value})}
-                    className="px-4 py-2 border rounded md:col-span-3"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Rate/Day"
-                    value={invoiceForm.rate_per_day}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, rate_per_day: parseFloat(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={invoiceForm.quantity}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, quantity: parseInt(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Days"
-                    value={invoiceForm.days}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, days: parseInt(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Excess"
-                    value={invoiceForm.excess}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, excess: parseFloat(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-bold mb-4">Banking Details</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Account Name"
-                    value={invoiceForm.account_name}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, account_name: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Bank Name"
-                    value={invoiceForm.bank_name}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, bank_name: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Branch Code"
-                    value={invoiceForm.branch_code}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, branch_code: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Account Number"
-                    value={invoiceForm.account_number}
-                    onChange={(e) => setInvoiceForm({...invoiceForm, account_number: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-4 pt-6 border-t">
-                <button
-                  onClick={() => setShowInvoiceModal(false)}
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveInvoice}
-                  className="px-4 py-2 bg-[#00A8E8] text-white rounded hover:bg-[#0087b8]"
-                >
-                  Save Invoice
-                </button>
-              </div>
+            <div className="flex justify-between border-t pt-2">
+              <span>VAT - {form.vat_rate}%:</span>
+              <span className="font-bold">E {vat.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2 text-lg font-bold">
+              <span>Total:</span>
+              <span>E {total.toFixed(2)}</span>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Quotation Modal */}
-      {showQuotationModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h3 className="text-2xl font-bold">Quotation Form</h3>
-              <button onClick={() => setShowQuotationModal(false)} className="text-gray-500 hover:text-gray-700">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+      <div className="flex gap-4">
+        <button
+          onClick={onSave}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 flex items-center gap-2"
+        >
+          <Save size={20} /> Save Invoice
+        </button>
+        <button
+          onClick={onCancel}
+          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// Quotation Form Component
+function QuotationFormComponent({ form, setForm, onSave, onCancel }) {
+  const handleItemChange = (index, field, value) => {
+    const newItems = [...form.items]
+    newItems[index][field] = value
+    setForm({ ...form, items: newItems })
+  }
+
+  const calculateTotal = () => {
+    const subtotal = form.items.reduce((sum, item) => sum + (item.total || 0), 0)
+    const vat = (subtotal * form.vat_rate) / 100
+    return { subtotal, vat, total: subtotal + vat }
+  }
+
+  const { subtotal, vat, total } = calculateTotal()
+
+  return (
+    <div className="bg-white p-8 rounded-lg shadow mb-8 border-2 border-gray-300">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-[#1a4a8d]">FENIX CAR HIRE</h1>
+        <p className="text-gray-600 text-sm">For All your rental Problems</p>
+        <p className="text-gray-600 text-xs mt-2">P.O. Box 7909 Mbabane, Eswatini | Lilanga Complex, Lilumemba Street, Sidwashini</p>
+        <p className="text-gray-600 text-xs">Call: (+268) 7682797, 7686935 | Fax: (+268) 2422 1045 | Email: reception@fenix.co.sz</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-8 mb-8">
+        <div>
+          <p className="font-bold text-gray-800">Customer:</p>
+          <input
+            type="text"
+            value={form.customer_name}
+            onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+            className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+          />
+        </div>
+        <div>
+          <p className="font-bold text-gray-800">Quotation ID:</p>
+          <input
+            type="text"
+            value={form.quotation_id}
+            onChange={(e) => setForm({ ...form, quotation_id: e.target.value })}
+            className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+          />
+        </div>
+        <div>
+          <p className="font-bold text-gray-800">Date:</p>
+          <input
+            type="date"
+            value={form.date}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+          />
+        </div>
+      </div>
+
+      <table className="w-full border-collapse mb-8">
+        <thead>
+          <tr className="border-2 border-gray-800">
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Description</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Rate/day</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Quantity</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Km Free</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Days</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Excess</th>
+            <th className="border border-gray-800 px-3 py-2 text-left text-sm font-bold">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {form.items.map((item, index) => (
+            <tr key={index} className="border-2 border-gray-800">
+              <td className="border border-gray-800 px-3 py-2">
                 <input
                   type="text"
-                  placeholder="Customer Name"
-                  value={quotationForm.customer_name}
-                  onChange={(e) => setQuotationForm({...quotationForm, customer_name: e.target.value})}
-                  className="px-4 py-2 border rounded"
+                  value={item.description}
+                  onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
                 />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
                 <input
-                  type="date"
-                  value={quotationForm.date}
-                  onChange={(e) => setQuotationForm({...quotationForm, date: e.target.value})}
-                  className="px-4 py-2 border rounded"
+                  type="number"
+                  value={item.rate_per_day}
+                  onChange={(e) => handleItemChange(index, 'rate_per_day', parseFloat(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
                 />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
                 <input
-                  type="text"
-                  placeholder="Quotation ID"
-                  value={quotationForm.quotation_id}
-                  onChange={(e) => setQuotationForm({...quotationForm, quotation_id: e.target.value})}
-                  className="px-4 py-2 border rounded"
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
                 />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
                 <input
-                  type="text"
-                  placeholder="Customer Type"
-                  value={quotationForm.customer_type}
-                  onChange={(e) => setQuotationForm({...quotationForm, customer_type: e.target.value})}
-                  className="px-4 py-2 border rounded"
+                  type="number"
+                  value={item.km_free}
+                  onChange={(e) => handleItemChange(index, 'km_free', parseInt(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
                 />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
                 <input
-                  type="text"
-                  placeholder="Contact Person"
-                  value={quotationForm.contact_person}
-                  onChange={(e) => setQuotationForm({...quotationForm, contact_person: e.target.value})}
-                  className="px-4 py-2 border rounded"
+                  type="number"
+                  value={item.days}
+                  onChange={(e) => handleItemChange(index, 'days', parseInt(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
                 />
+              </td>
+              <td className="border border-gray-800 px-3 py-2">
                 <input
-                  type="tel"
-                  placeholder="Contact Number"
-                  value={quotationForm.contact_number}
-                  onChange={(e) => setQuotationForm({...quotationForm, contact_number: e.target.value})}
-                  className="px-4 py-2 border rounded"
+                  type="number"
+                  value={item.excess}
+                  onChange={(e) => handleItemChange(index, 'excess', parseFloat(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 w-full text-sm"
                 />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  value={quotationForm.email_address}
-                  onChange={(e) => setQuotationForm({...quotationForm, email_address: e.target.value})}
-                  className="px-4 py-2 border rounded md:col-span-2"
-                />
-              </div>
+              </td>
+              <td className="border border-gray-800 px-3 py-2 text-sm font-semibold">
+                E {(item.rate_per_day * item.quantity + item.excess).toFixed(2)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-              <div className="border-t pt-4">
-                <h4 className="font-bold mb-4">Line Items</h4>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Description"
-                    value={quotationForm.description}
-                    onChange={(e) => setQuotationForm({...quotationForm, description: e.target.value})}
-                    className="px-4 py-2 border rounded md:col-span-3"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Rate/Day"
-                    value={quotationForm.rate_per_day}
-                    onChange={(e) => setQuotationForm({...quotationForm, rate_per_day: parseFloat(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={quotationForm.quantity}
-                    onChange={(e) => setQuotationForm({...quotationForm, quantity: parseInt(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Days"
-                    value={quotationForm.days}
-                    onChange={(e) => setQuotationForm({...quotationForm, days: parseInt(e.target.value)})}
-                    className="px-4 py-2 border rounded"
-                  />
-                </div>
-              </div>
+      <div className="text-right space-y-2 text-sm mb-8">
+        <div className="flex justify-end gap-4">
+          <span>Subtotal:</span>
+          <span className="font-bold w-32 text-right">E {subtotal.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-end gap-4 border-t pt-2">
+          <span>VAT - {form.vat_rate}%:</span>
+          <span className="font-bold w-32 text-right">E {vat.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-end gap-4 border-t pt-2 text-lg font-bold">
+          <span>Total:</span>
+          <span className="w-32 text-right">E {total.toFixed(2)}</span>
+        </div>
+      </div>
 
-              <div className="border-t pt-4">
-                <h4 className="font-bold mb-4">Banking Details</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Account Name"
-                    value={quotationForm.account_name}
-                    onChange={(e) => setQuotationForm({...quotationForm, account_name: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Bank Name"
-                    value={quotationForm.bank_name}
-                    onChange={(e) => setQuotationForm({...quotationForm, bank_name: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Branch Code"
-                    value={quotationForm.branch_code}
-                    onChange={(e) => setQuotationForm({...quotationForm, branch_code: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Account Number"
-                    value={quotationForm.account_number}
-                    onChange={(e) => setQuotationForm({...quotationForm, account_number: e.target.value})}
-                    className="px-4 py-2 border rounded"
-                  />
-                </div>
-              </div>
+      <div className="flex gap-4">
+        <button
+          onClick={onSave}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 flex items-center gap-2"
+        >
+          <Save size={20} /> Save Quotation
+        </button>
+        <button
+          onClick={onCancel}
+          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
 
-              <div className="flex justify-end gap-4 pt-6 border-t">
-                <button
-                  onClick={() => setShowQuotationModal(false)}
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveQuotation}
-                  className="px-4 py-2 bg-[#00A8E8] text-white rounded hover:bg-[#0087b8]"
-                >
-                  Save Quotation
-                </button>
-              </div>
-            </div>
+// Check Sheet Form Component
+function CheckSheetFormComponent({ form, setForm, onSave, onCancel }) {
+  return (
+    <div className="bg-white p-8 rounded-lg shadow mb-8 border-2 border-gray-300">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-[#1a4a8d]">FENIX CAR HIRE</h1>
+        <p className="text-gray-600 text-sm">VEHICLE CHECK SHEET</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        <div>
+          <h3 className="font-bold text-gray-800 mb-4">PRE-RENTAL INSPECTION</h3>
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="Vehicle Number"
+              value={form.pre_rental.vehicle_number}
+              onChange={(e) => setForm({
+                ...form,
+                pre_rental: { ...form.pre_rental, vehicle_number: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            />
+            <input
+              type="text"
+              placeholder="Customer Name"
+              value={form.pre_rental.customer_name}
+              onChange={(e) => setForm({
+                ...form,
+                pre_rental: { ...form.pre_rental, customer_name: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            />
+            <input
+              type="text"
+              placeholder="Car Description"
+              value={form.pre_rental.car_description}
+              onChange={(e) => setForm({
+                ...form,
+                pre_rental: { ...form.pre_rental, car_description: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            />
+            <input
+              type="number"
+              placeholder="Mileage"
+              value={form.pre_rental.mileage}
+              onChange={(e) => setForm({
+                ...form,
+                pre_rental: { ...form.pre_rental, mileage: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            />
+            <select
+              value={form.pre_rental.fuel_level}
+              onChange={(e) => setForm({
+                ...form,
+                pre_rental: { ...form.pre_rental, fuel_level: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            >
+              <option value="">Select Fuel Level</option>
+              <option value="Empty">Empty</option>
+              <option value="Quarter">1/4</option>
+              <option value="Half">1/2</option>
+              <option value="Three-Quarter">3/4</option>
+              <option value="Full">Full</option>
+            </select>
           </div>
         </div>
-      )}
+
+        <div>
+          <h3 className="font-bold text-gray-800 mb-4">POST-RENTAL INSPECTION</h3>
+          <div className="space-y-3">
+            <input
+              type="number"
+              placeholder="Final Mileage"
+              value={form.post_rental.mileage}
+              onChange={(e) => setForm({
+                ...form,
+                post_rental: { ...form.post_rental, mileage: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            />
+            <select
+              value={form.post_rental.fuel_level}
+              onChange={(e) => setForm({
+                ...form,
+                post_rental: { ...form.post_rental, fuel_level: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            >
+              <option value="">Select Fuel Level</option>
+              <option value="Empty">Empty</option>
+              <option value="Quarter">1/4</option>
+              <option value="Half">1/2</option>
+              <option value="Three-Quarter">3/4</option>
+              <option value="Full">Full</option>
+            </select>
+            <textarea
+              placeholder="Damage Description"
+              value={form.post_rental.damage_description}
+              onChange={(e) => setForm({
+                ...form,
+                post_rental: { ...form.post_rental, damage_description: e.target.value }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm h-20"
+            />
+            <input
+              type="number"
+              placeholder="Damage Charges"
+              value={form.post_rental.charges}
+              onChange={(e) => setForm({
+                ...form,
+                post_rental: { ...form.post_rental, charges: parseFloat(e.target.value) }
+              })}
+              className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <label className="font-bold text-gray-800">Inspector Signature:</label>
+        <input
+          type="text"
+          placeholder="Signature"
+          value={form.signature}
+          onChange={(e) => setForm({ ...form, signature: e.target.value })}
+          className="border border-gray-300 rounded px-3 py-2 w-full text-sm"
+        />
+      </div>
+
+      <div className="flex gap-4">
+        <button
+          onClick={onSave}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 flex items-center gap-2"
+        >
+          <Save size={20} /> Save Check Sheet
+        </button>
+        <button
+          onClick={onCancel}
+          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   )
 }

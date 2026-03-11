@@ -21,6 +21,15 @@ export default function Booking() {
       {/* Booking Form */}
       <Section>
         <div className="max-w-4xl mx-auto">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-[#1a4a8d]">Book Your Car Now</h2>
+            <a
+              href="/fenix-admin"
+              className="px-4 py-2 bg-[#1a4a8d] text-white font-semibold rounded-lg hover:bg-[#133559] transition-colors"
+            >
+              Admin Dashboard
+            </a>
+          </div>
           <BookingForm />
         </div>
       </Section>
