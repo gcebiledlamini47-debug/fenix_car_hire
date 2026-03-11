@@ -38,12 +38,12 @@ export function Navbar() {
             </button>
 
             {/* Left Navigation - Desktop */}
-            <div className="hidden md:flex items-center gap-2 flex-1">
+            <div className="hidden md:flex items-center gap-4 flex-1">
               {navigationLinks.slice(0, 3).map((link) => (
                 <Link
                   key={link.id}
                   href={link.href}
-                  className="px-4 py-2 rounded-md text-base font-bold text-white hover:text-[#00A8E8] hover:bg-white/20 transition-colors"
+                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:text-yellow-300 hover:bg-white/30 transition-all duration-200 shadow-md"
                 >
                   {link.label}
                 </Link>
@@ -59,12 +59,12 @@ export function Navbar() {
             </Link>
 
             {/* Right Navigation - Desktop */}
-            <div className="hidden md:flex items-center gap-2 flex-1 justify-end">
+            <div className="hidden md:flex items-center gap-4 flex-1 justify-end">
               {navigationLinks.slice(3).map((link) => (
                 <Link
                   key={link.id}
                   href={link.href}
-                  className="px-4 py-2 rounded-md text-base font-bold text-white hover:text-[#00A8E8] hover:bg-white/20 transition-colors"
+                  className="px-5 py-2 rounded-lg text-lg font-extrabold text-white hover:text-yellow-300 hover:bg-white/30 transition-all duration-200 shadow-md"
                 >
                   {link.label}
                 </Link>
@@ -88,7 +88,7 @@ export function Navbar() {
                 key={link.id}
                 href={link.href}
                 onClick={closeMobileMenu}
-                className="block px-4 py-3 rounded-lg text-white hover:bg-white/10 hover:text-[#00A8E8] transition-colors font-bold text-base"
+                className="block px-4 py-3 rounded-lg text-white hover:bg-white/20 hover:text-yellow-300 transition-all font-extrabold text-lg shadow-sm"
               >
                 {link.label}
               </Link>
