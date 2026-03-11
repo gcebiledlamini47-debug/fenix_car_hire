@@ -122,37 +122,29 @@ export function BookingForm() {
         <p className="text-gray-700 mb-6">
           Thank you for your booking request. We will contact you shortly to confirm your reservation.
         </p>
-        <div className="flex gap-4 justify-center">
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setFormData({
-                pickupDate: '',
-                returnDate: '',
-                pickupLocation: '',
-                returnLocation: '',
-                vehicleId: '',
-                vehicleName: '',
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                driverLicense: '',
-                notes: '',
-              });
-              fetchVehicles();
-            }}
-            className="px-6 py-2 bg-[#00A8E8] text-white font-semibold rounded-lg hover:bg-[#0087b8] transition-colors"
-          >
-            Make Another Booking
-          </button>
-          <a
-            href="/fenix-admin"
-            className="px-6 py-2 bg-[#1a4a8d] text-white font-semibold rounded-lg hover:bg-[#133559] transition-colors"
-          >
-            View Admin Dashboard
-          </a>
-        </div>
+        <button
+          onClick={() => {
+            setSubmitted(false);
+            setFormData({
+              pickupDate: '',
+              returnDate: '',
+              pickupLocation: '',
+              returnLocation: '',
+              vehicleId: '',
+              vehicleName: '',
+              firstName: '',
+              lastName: '',
+              email: '',
+              phone: '',
+              driverLicense: '',
+              notes: '',
+            });
+            fetchVehicles();
+          }}
+          className="px-6 py-2 bg-[#00A8E8] text-white font-semibold rounded-lg hover:bg-[#0087b8] transition-colors"
+        >
+          Make Another Booking
+        </button>
       </div>
     );
   }
