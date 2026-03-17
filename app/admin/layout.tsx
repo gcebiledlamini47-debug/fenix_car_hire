@@ -24,10 +24,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [router])
 
-  const handleLogout = () => {
-    document.cookie = 'admin_token=; Max-Age=0'
-    setIsAuthenticated(false)
-    router.push('/admin/login')
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+      })
+      setIsAuthenticated(false)
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Force logout anyway
+      router.push('/admin/login')
+    }
   }
 
   if (isLoading) {

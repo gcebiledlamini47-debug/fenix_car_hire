@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 
 export default function AdminLogin() {
   const router = useRouter()
@@ -17,28 +16,21 @@ export default function AdminLogin() {
     setError('')
 
     try {
-      const { data, error: loginError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', email)
-        .single()
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-      if (loginError || !data) {
-        setError('Invalid email or password')
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.message || 'Login failed')
         setLoading(false)
         return
       }
 
-      // For demo purposes, compare password directly
-      // In production, use proper bcrypt comparison
-      if (data.password_hash !== password) {
-        setError('Invalid email or password')
-        setLoading(false)
-        return
-      }
-
-      // Set auth cookie
-      document.cookie = `admin_token=${data.id}; path=/; max-age=86400`
+      // Redirect to dashboard
       router.push('/admin/dashboard')
     } catch (err) {
       setError('An error occurred. Please try again.')
