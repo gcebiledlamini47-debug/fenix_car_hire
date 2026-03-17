@@ -34,22 +34,24 @@ export default function Contact() {
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">📞 Phone</h3>
-                <a href="tel:+255756123456" className="text-[#00A8E8] hover:underline text-lg font-semibold">
-                  +255 756 123 456
+                <a href="tel:+26876829797" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                  +268 76829797
                 </a>
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">✉️ Email</h3>
-                <a href="mailto:info@fenixcarhire.com" className="text-[#00A8E8] hover:underline text-lg font-semibold">
-                  info@fenixcarhire.com
+                <a href="mailto:reception@fenix.co.sz" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                  reception@fenix.co.sz
                 </a>
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">📍 Main Office</h3>
                 <p className="text-gray-700">
-                  Dar es Salaam, Tanzania
+                  Mbabane, Sidvwashini
+                  <br />
+                  Lilanga Complex, Office B
                   <br />
                   Operating Hours: Mon-Sun, 8am - 6pm
                 </p>
@@ -57,7 +59,7 @@ export default function Contact() {
 
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-bold text-[#1a4a8d] mb-3">💬 WhatsApp</h3>
-                <a href="https://wa.me/255756123456" className="text-[#00A8E8] hover:underline text-lg font-semibold">
+                <a href="https://wa.me/26876829797" className="text-[#00A8E8] hover:underline text-lg font-semibold">
                   Chat with us on WhatsApp
                 </a>
               </div>

@@ -32,7 +32,6 @@ export function Navbar() {
               </div>
               <div className="text-center">
                 <span className="font-bold text-lg text-white block">Fenix Car Hire</span>
-                <span className="text-xs text-[#00A8E8] font-semibold">For all your rental needs</span>
               </div>
             </Link>
 

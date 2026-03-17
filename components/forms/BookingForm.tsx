@@ -231,7 +231,7 @@ export function BookingForm() {
         type="submit"
         className="w-full py-3 px-6 bg-[#00A8E8] text-white font-bold rounded-lg hover:bg-[#0087b8] transition-colors"
       >
-        Complete Booking
+        Submit
       </button>
     </form>
   );
