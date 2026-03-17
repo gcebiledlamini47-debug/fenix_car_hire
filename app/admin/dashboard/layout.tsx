@@ -40,8 +40,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-700">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <p className="text-gray-300">Loading...</p>
       </div>
     )
   }
@@ -51,65 +51,70 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#1a4a8d] text-white p-6 shadow-lg">
+      <aside className="w-64 bg-gray-800 text-white p-6 shadow-xl border-r border-gray-700">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold">Fenix Admin</h1>
-          <p className="text-sm text-gray-300">Car Hire Management</p>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Fenix Admin</h1>
+          <p className="text-sm text-gray-400 mt-1">Car Hire Management</p>
         </div>
 
         <nav className="space-y-2">
           <Link
             href="/admin/dashboard"
-            className="block px-4 py-3 rounded hover:bg-[#00A8E8] transition-colors text-sm font-medium"
+            className="block px-4 py-3 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-all text-sm font-medium text-gray-300 group"
           >
-            📊 Dashboard
+            <span className="inline-block mr-3">📊</span> Dashboard
           </Link>
           <Link
             href="/admin/bookings"
-            className="block px-4 py-3 rounded hover:bg-[#00A8E8] transition-colors text-sm font-medium"
+            className="block px-4 py-3 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-all text-sm font-medium text-gray-300 group"
           >
-            📅 Bookings
+            <span className="inline-block mr-3">📅</span> Bookings
           </Link>
           <Link
             href="/admin/quotations"
-            className="block px-4 py-3 rounded hover:bg-[#00A8E8] transition-colors text-sm font-medium"
+            className="block px-4 py-3 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-all text-sm font-medium text-gray-300 group"
           >
-            📋 Quotations
+            <span className="inline-block mr-3">📋</span> Quotations
           </Link>
           <Link
             href="/admin/checksheets"
-            className="block px-4 py-3 rounded hover:bg-[#00A8E8] transition-colors text-sm font-medium"
+            className="block px-4 py-3 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-all text-sm font-medium text-gray-300 group"
           >
-            ✓ Checksheets
+            <span className="inline-block mr-3">✓</span> Checksheets
           </Link>
           <Link
             href="/admin/invoices"
-            className="block px-4 py-3 rounded hover:bg-[#00A8E8] transition-colors text-sm font-medium"
+            className="block px-4 py-3 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-all text-sm font-medium text-gray-300 group"
           >
-            📄 Invoices
+            <span className="inline-block mr-3">📄</span> Invoices
           </Link>
           <Link
             href="/admin/messages"
-            className="block px-4 py-3 rounded hover:bg-[#00A8E8] transition-colors text-sm font-medium"
+            className="block px-4 py-3 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-all text-sm font-medium text-gray-300 group"
           >
-            💬 Messages
+            <span className="inline-block mr-3">💬</span> Messages
           </Link>
         </nav>
 
-        <button
-          onClick={handleLogout}
-          className="mt-8 w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700 transition-colors font-medium text-sm"
-        >
-          🚪 Logout
-        </button>
+        <div className="mt-auto pt-6 border-t border-gray-700">
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 transition-colors rounded-lg font-medium text-sm text-white"
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
-        {children}
+      <main className="flex-1 overflow-auto">
+        <div className="p-8">
+          {children}
+        </div>
       </main>
     </div>
   )
 }
+
