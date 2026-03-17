@@ -30,8 +30,14 @@ export default function AdminLogin() {
         return
       }
 
+      // Store token in localStorage
+      if (data.token) {
+        localStorage.setItem('admin_token', data.token)
+        document.cookie = `admin_token=${data.token}; path=/; max-age=86400`
+      }
+
       // Redirect to dashboard
-      router.push('/admin/dashboard')
+      router.push('/admin/dash')
     } catch (err) {
       setError('An error occurred. Please try again.')
       console.error(err)

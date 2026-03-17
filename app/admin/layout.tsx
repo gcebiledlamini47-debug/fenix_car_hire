@@ -14,10 +14,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsMounted(true)
-    const token = document.cookie
+    // Check for token in both localStorage and cookies
+    const storedToken = localStorage.getItem('admin_token')
+    const cookieToken = document.cookie
       .split('; ')
       .find((row) => row.startsWith('admin_token='))
       ?.split('=')[1]
+    
+    const token = storedToken || cookieToken
 
     if (!token && pathname !== '/admin/login') {
       router.push('/admin/login')
@@ -33,6 +37,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Logout error:', error)
     }
+    localStorage.removeItem('admin_token')
     document.cookie = 'admin_token=; path=/; max-age=0'
     router.push('/admin/login')
   }

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Create response with auth cookie
     const response = NextResponse.json(
-      { message: 'Login successful', userId: adminUser.id },
+      { message: 'Login successful', userId: adminUser.id, token: adminUser.id },
       { status: 200 }
     )
 
