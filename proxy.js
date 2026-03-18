@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export default function proxy(request: NextRequest) {
+export default function proxy(request) {
   const adminToken = request.cookies.get('admin_token')?.value
 
   if (request.nextUrl.pathname.startsWith('/admin')) {

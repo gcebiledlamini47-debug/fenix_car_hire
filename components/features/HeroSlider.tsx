@@ -7,7 +7,7 @@ import Link from 'next/link';
 const slides = [
   {
     id: 1,
-    title: 'Premium Car Rental',
+    title: 'Fenix Car Hire',
     description: 'Experience luxury and comfort with our premium vehicle selection',
     gradient: 'from-blue-400 via-cyan-300 to-orange-300',
   },
@@ -27,7 +27,6 @@ const slides = [
 
 export function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [carPosition, setCarPosition] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -35,14 +34,6 @@ export function HeroSlider() {
     }, 6000);
 
     return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const carTimer = setInterval(() => {
-      setCarPosition((prev) => (prev + 1) % 100);
-    }, 50);
-
-    return () => clearInterval(carTimer);
   }, []);
 
   const goToSlide = (index: number) => {
@@ -87,39 +78,15 @@ export function HeroSlider() {
               </Link>
             </div>
 
-            {/* Animated Car */}
-            <div className="absolute bottom-0 right-0 w-64 h-40 opacity-80">
-              <svg
-                viewBox="0 0 400 200"
-                className="w-full h-full drop-shadow-lg"
-                style={{
-                  transform: `translateX(${carPosition * 2}px)`,
-                  transition: 'transform 0.05s linear',
-                }}
-              >
-                {/* Car Body */}
-                <rect x="80" y="100" width="240" height="60" rx="8" fill="white" opacity="0.95" />
-                
-                {/* Car Top/Roof */}
-                <polygon points="120,100 140,50 260,50 280,100" fill="white" opacity="0.95" />
-                
-                {/* Windows */}
-                <rect x="130" y="60" width="50" height="35" fill="#87CEEB" opacity="0.7" rx="4" />
-                <rect x="220" y="60" width="50" height="35" fill="#87CEEB" opacity="0.7" rx="4" />
-                
-                {/* Wheels */}
-                <circle cx="130" cy="165" r="18" fill="#333" />
-                <circle cx="270" cy="165" r="18" fill="#333" />
-                <circle cx="130" cy="165" r="12" fill="#666" />
-                <circle cx="270" cy="165" r="12" fill="#666" />
-                
-                {/* Headlights */}
-                <circle cx="85" cy="125" r="8" fill="#FFD700" opacity="0.8" />
-                <circle cx="85" cy="135" r="6" fill="#FFA500" opacity="0.6" />
-                
-                {/* Bumper Details */}
-                <rect x="315" y="110" width="15" height="30" fill="#888" />
-              </svg>
+            {/* Real Car Image */}
+            <div className="absolute bottom-0 right-0 w-80 h-56 md:w-96 md:h-72">
+              <Image
+                src="/images/white-fortune-car.jpg"
+                alt="White Fortune Car"
+                fill
+                className="object-contain object-bottom drop-shadow-2xl"
+                priority
+              />
             </div>
           </div>
         </div>
