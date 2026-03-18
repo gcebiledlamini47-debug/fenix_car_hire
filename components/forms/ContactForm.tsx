@@ -20,6 +20,8 @@ export function ContactForm() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,20 +31,36 @@ export function ContactForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
-    }, 3000);
+
+      if (!response.ok) throw new Error('Failed to submit form');
+
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+        });
+      }, 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -50,6 +68,15 @@ export function ContactForm() {
       <div className="bg-green-50 border-2 border-green-500 rounded-lg p-8 text-center">
         <h3 className="text-2xl font-bold text-green-600 mb-2">Message Sent!</h3>
         <p className="text-gray-700">Thank you for contacting us. We'll get back to you soon.</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border-2 border-red-500 rounded-lg p-8 text-center">
+        <h3 className="text-2xl font-bold text-red-600 mb-2">Error</h3>
+        <p className="text-gray-700">{error}</p>
       </div>
     );
   }
@@ -131,9 +158,10 @@ export function ContactForm() {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full py-3 px-6 bg-[#00A8E8] text-white font-bold rounded-lg hover:bg-[#0087b8] transition-colors"
+        disabled={loading}
+        className="w-full py-3 px-6 bg-[#00A8E8] text-white font-bold rounded-lg hover:bg-[#0087b8] transition-colors disabled:opacity-50"
       >
-        Send Message
+        {loading ? 'Sending...' : 'Send Message'}
       </button>
     </form>
   );
