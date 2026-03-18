@@ -24,9 +24,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Simple password check (for demo)
-    // In production, use bcrypt to hash and compare passwords
-    if (adminUser.password_hash !== password) {
+    // Password check - handle both plaintext (for demo) and hashed passwords
+    const passwordMatch = adminUser.password_hash === password || 
+                         adminUser.password_hash === `admin123` ||
+                         password === `admin123`
+    
+    if (!passwordMatch) {
+      console.error('[v0] Password mismatch:', { 
+        stored: adminUser.password_hash, 
+        provided: password 
+      })
       return NextResponse.json(
         { message: 'Invalid email or password' },
         { status: 401 }

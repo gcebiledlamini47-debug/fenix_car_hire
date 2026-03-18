@@ -23,6 +23,7 @@ export default function AdminLogin() {
       })
 
       const data = await response.json()
+      console.log('[v0] Login response:', { status: response.status, data })
 
       if (!response.ok) {
         setError(data.message || 'Login failed')
@@ -34,10 +35,11 @@ export default function AdminLogin() {
       if (data.token) {
         localStorage.setItem('admin_token', data.token)
         document.cookie = `admin_token=${data.token}; path=/; max-age=86400`
+        console.log('[v0] Token stored, redirecting to dashboard')
       }
 
       // Redirect to dashboard
-      router.push('/admin/dash')
+      setTimeout(() => router.push('/admin/dash'), 500)
     } catch (err) {
       setError('An error occurred. Please try again.')
       console.error('[v0] Login error:', err)
