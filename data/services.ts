@@ -3,14 +3,14 @@ import { Service } from '@/types';
 export const services: Service[] = [
   {
     id: 'service-1',
-    title: '24/7 Rental Service',
-    description: 'Round-the-clock car rental availability to meet your travel needs anytime, anywhere.',
+    title: 'Round-the-Clock Availability',
+    description: 'Access our rental services with convenient booking and flexible scheduling options.',
     icon: '🕐',
     features: [
-      'Available 24 hours a day',
-      '7 days a week',
-      'Holiday service included',
-      'Emergency roadside assistance',
+      'Flexible rental periods',
+      'Easy online booking',
+      'Multiple pickup locations',
+      'Quick vehicle delivery',
     ],
   },
   {
@@ -39,12 +39,12 @@ export const services: Service[] = [
   },
   {
     id: 'service-4',
-    title: 'Insurance & Safety',
-    description: 'Comprehensive insurance coverage and safety features for peace of mind.',
+    title: 'Insurance & Support',
+    description: 'Comprehensive coverage and professional assistance for complete peace of mind.',
     icon: '🛡️',
     features: [
       'Full coverage insurance',
-      'Emergency support team',
+      'Professional support team',
       'GPS tracking available',
       'Safe and inspected vehicles',
     ],
