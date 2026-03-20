@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { ChevronDown, ChevronUp, Edit2, Trash2, Plus, Save, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit2, Trash2, Plus, Save, X, Eye } from 'lucide-react'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,16 +53,49 @@ interface CheckSheet {
   mileage_out: number
 }
 
+interface Vehicle {
+  id: string
+  name: string
+  registration_number: string
+  model: string
+  color: string
+  fuel_type: string
+  mileage: number
+  is_booked: boolean
+  created_at: string
+}
+
+interface DocumentTemplate {
+  id: string
+  template_type: 'invoice' | 'quotation' | 'checksheet'
+  name: string
+  company_name: string
+  company_address: string
+  company_phone: string
+  company_email: string
+  bank_account_name: string
+  bank_name: string
+  bank_branch_code: string
+  bank_account_number: string
+  vat_rate: number
+  template_data: Record<string, any>
+  created_at: string
+}
+
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'bookings' | 'invoices' | 'quotations' | 'checksheets'>('bookings')
+  const [activeTab, setActiveTab] = useState<'bookings' | 'invoices' | 'quotations' | 'checksheets' | 'vehicles' | 'templates'>('bookings')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [quotations, setQuotations] = useState<Quotation[]>([])
   const [checksheets, setChecksheets] = useState<CheckSheet[]>([])
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [templates, setTemplates] = useState<DocumentTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null)
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null)
   const [editingChecksheet, setEditingChecksheet] = useState<CheckSheet | null>(null)
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
+  const [editingTemplate, setEditingTemplate] = useState<DocumentTemplate | null>(null)
 
   useEffect(() => {
     fetchAllData()
@@ -71,17 +104,21 @@ export default function AdminDashboard() {
   const fetchAllData = async () => {
     try {
       setLoading(true)
-      const [bookingsData, invoicesData, quotationsData, checksheetsData] = await Promise.all([
+      const [bookingsData, invoicesData, quotationsData, checksheetsData, vehiclesData, templatesData] = await Promise.all([
         supabase.from('bookings').select('*').order('created_at', { ascending: false }),
         supabase.from('invoices').select('*').order('created_at', { ascending: false }),
         supabase.from('quotations').select('*').order('created_at', { ascending: false }),
         supabase.from('checksheets').select('*').order('created_at', { ascending: false }),
+        supabase.from('vehicles').select('*').order('created_at', { ascending: false }),
+        supabase.from('templates').select('*').order('created_at', { ascending: false }),
       ])
 
       if (bookingsData.data) setBookings(bookingsData.data)
       if (invoicesData.data) setInvoices(invoicesData.data)
       if (quotationsData.data) setQuotations(quotationsData.data)
       if (checksheetsData.data) setChecksheets(checksheetsData.data)
+      if (vehiclesData.data) setVehicles(vehiclesData.data)
+      if (templatesData.data) setTemplates(templatesData.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -158,33 +195,81 @@ export default function AdminDashboard() {
     }
   }
 
+  const saveVehicle = async (vehicle: Vehicle) => {
+    try {
+      if (vehicle.id) {
+        await supabase.from('vehicles').update(vehicle).eq('id', vehicle.id)
+      } else {
+        await supabase.from('vehicles').insert([vehicle])
+      }
+      setEditingVehicle(null)
+      fetchAllData()
+    } catch (error) {
+      console.error('Error saving vehicle:', error)
+    }
+  }
+
+  const deleteVehicle = async (id: string) => {
+    try {
+      await supabase.from('vehicles').delete().eq('id', id)
+      fetchAllData()
+    } catch (error) {
+      console.error('Error deleting vehicle:', error)
+    }
+  }
+
+  const saveTemplate = async (template: DocumentTemplate) => {
+    try {
+      if (template.id) {
+        await supabase.from('templates').update(template).eq('id', template.id)
+      } else {
+        await supabase.from('templates').insert([template])
+      }
+      setEditingTemplate(null)
+      fetchAllData()
+    } catch (error) {
+      console.error('Error saving template:', error)
+    }
+  }
+
+  const deleteTemplate = async (id: string) => {
+    try {
+      await supabase.from('templates').delete().eq('id', id)
+      fetchAllData()
+    } catch (error) {
+      console.error('Error deleting template:', error)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f5f5f5 0%, #e8eef5 100%)' }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className="bg-gradient-to-r from-[#1a4a8d] to-[#00A8E8] text-white sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-[#1a4a8d]">Fenix Car Hire - Admin Portal</h1>
-          <p className="text-gray-600 text-sm mt-1">Private Management Dashboard</p>
+          <h1 className="text-3xl font-bold">Fenix Car Hire - Admin Portal</h1>
+          <p className="text-blue-100 text-sm mt-1">Private Management Dashboard</p>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-30">
+      <div className="bg-white border-b-2 border-[#1a4a8d] sticky top-16 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto">
             {[
               { id: 'bookings', label: 'Bookings', icon: '📅' },
               { id: 'invoices', label: 'Invoices', icon: '📄' },
               { id: 'quotations', label: 'Quotations', icon: '💼' },
               { id: 'checksheets', label: 'Check Sheets', icon: '✓' },
+              { id: 'vehicles', label: 'Vehicles', icon: '🚗' },
+              { id: 'templates', label: 'Templates', icon: '📋' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-6 py-4 font-semibold text-sm border-b-2 transition-colors ${
+                className={`px-6 py-4 font-semibold text-sm border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'border-[#00A8E8] text-[#00A8E8]'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    ? 'border-[#00A8E8] text-[#1a4a8d] bg-blue-50'
+                    : 'border-transparent text-gray-600 hover:text-[#1a4a8d]'
                 }`}
               >
                 {tab.icon} {tab.label}
@@ -253,6 +338,53 @@ export default function AdminDashboard() {
               post_rental: {},
               mileage_in: 0,
               mileage_out: 0,
+            })}
+          />
+        )}
+        {activeTab === 'vehicles' && (
+          <VehiclesSection
+            vehicles={vehicles}
+            loading={loading}
+            editing={editingVehicle}
+            onEdit={setEditingVehicle}
+            onSave={saveVehicle}
+            onDelete={deleteVehicle}
+            onNew={() => setEditingVehicle({
+              id: '',
+              name: '',
+              registration_number: '',
+              model: '',
+              color: '',
+              fuel_type: '',
+              mileage: 0,
+              is_booked: false,
+              created_at: new Date().toISOString(),
+            })}
+          />
+        )}
+        {activeTab === 'templates' && (
+          <TemplatesSection
+            templates={templates}
+            loading={loading}
+            editing={editingTemplate}
+            onEdit={setEditingTemplate}
+            onSave={saveTemplate}
+            onDelete={deleteTemplate}
+            onNew={(type) => setEditingTemplate({
+              id: '',
+              template_type: type,
+              name: '',
+              company_name: 'Fenix Car Hire',
+              company_address: 'P.O. Box 7909 Mbabane, Eswatini',
+              company_phone: '(+268) 2422 1045',
+              company_email: 'reception@fenix.co.sz',
+              bank_account_name: 'Semperfi Investments (Pty)',
+              bank_name: 'Standard Bank Swaziland',
+              bank_branch_code: '663164',
+              bank_account_number: '9110005689573',
+              vat_rate: 15,
+              template_data: {},
+              created_at: new Date().toISOString(),
             })}
           />
         )}
@@ -789,6 +921,402 @@ function CheckSheetForm({ checksheet, onSave, onCancel }: any) {
       <div className="flex gap-4">
         <button onClick={() => onSave(formData)} className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-700">
           <Save size={20} /> Save Check Sheet
+        </button>
+        <button onClick={onCancel} className="bg-gray-400 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-500">
+          <X size={20} /> Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function VehiclesSection({ vehicles, loading, editing, onEdit, onSave, onDelete, onNew }: any) {
+  if (loading) return <div className="text-center py-8">Loading vehicles...</div>
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-[#1a4a8d]">Vehicle Management</h2>
+        <button onClick={onNew} className="bg-[#00A8E8] text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[#0087b8]">
+          <Plus size={20} /> Add Vehicle
+        </button>
+      </div>
+
+      {editing && (
+        <VehicleForm vehicle={editing} onSave={onSave} onCancel={() => onEdit(null)} />
+      )}
+
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gradient-to-r from-[#1a4a8d] to-[#00A8E8] text-white">
+            <tr>
+              <th className="px-6 py-3 text-left font-semibold">Name</th>
+              <th className="px-6 py-3 text-left font-semibold">Reg. Number</th>
+              <th className="px-6 py-3 text-left font-semibold">Model</th>
+              <th className="px-6 py-3 text-left font-semibold">Color</th>
+              <th className="px-6 py-3 text-left font-semibold">Fuel Type</th>
+              <th className="px-6 py-3 text-left font-semibold">Mileage</th>
+              <th className="px-6 py-3 text-left font-semibold">Status</th>
+              <th className="px-6 py-3 text-left font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vehicles.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                  No vehicles available. Create one to get started.
+                </td>
+              </tr>
+            ) : (
+              vehicles.map((vehicle: Vehicle) => (
+                <tr key={vehicle.id} className="border-t hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 font-semibold text-gray-900">{vehicle.name}</td>
+                  <td className="px-6 py-4 text-gray-700">{vehicle.registration_number}</td>
+                  <td className="px-6 py-4 text-gray-700">{vehicle.model}</td>
+                  <td className="px-6 py-4 text-gray-700">{vehicle.color}</td>
+                  <td className="px-6 py-4 text-gray-700">{vehicle.fuel_type}</td>
+                  <td className="px-6 py-4 text-gray-700">{vehicle.mileage} km</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      vehicle.is_booked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {vehicle.is_booked ? 'Booked' : 'Available'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 space-x-2 flex">
+                    <button onClick={() => onEdit(vehicle)} className="text-blue-600 hover:text-blue-800 transition">
+                      <Edit2 size={18} />
+                    </button>
+                    <button onClick={() => onDelete(vehicle.id)} className="text-red-600 hover:text-red-800 transition">
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function VehicleForm({ vehicle, onSave, onCancel }: any) {
+  const [formData, setFormData] = useState(vehicle)
+
+  return (
+    <div className="bg-white rounded-lg shadow p-8 border-l-4 border-[#00A8E8]">
+      <h3 className="text-xl font-bold text-[#1a4a8d] mb-6">Add/Edit Vehicle</h3>
+      
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Vehicle Name</label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            placeholder="e.g., Toyota Fortuner"
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Registration Number</label>
+          <input
+            type="text"
+            value={formData.registration_number}
+            onChange={(e) => setFormData({ ...formData, registration_number: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            placeholder="e.g., EZ 123"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Model</label>
+          <input
+            type="text"
+            value={formData.model}
+            onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            placeholder="e.g., 2023"
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Color</label>
+          <input
+            type="text"
+            value={formData.color}
+            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            placeholder="e.g., Silver"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6 mb-6">
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Fuel Type</label>
+          <select
+            value={formData.fuel_type}
+            onChange={(e) => setFormData({ ...formData, fuel_type: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+          >
+            <option value="">Select fuel type</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+        </div>
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Current Mileage (km)</label>
+          <input
+            type="number"
+            value={formData.mileage}
+            onChange={(e) => setFormData({ ...formData, mileage: parseFloat(e.target.value) || 0 })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            placeholder="0"
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Status</label>
+          <select
+            value={formData.is_booked ? 'booked' : 'available'}
+            onChange={(e) => setFormData({ ...formData, is_booked: e.target.value === 'booked' })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+          >
+            <option value="available">Available</option>
+            <option value="booked">Booked</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="flex gap-4">
+        <button onClick={() => onSave(formData)} className="bg-[#00A8E8] text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[#0087b8]">
+          <Save size={20} /> Save Vehicle
+        </button>
+        <button onClick={onCancel} className="bg-gray-400 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-500">
+          <X size={20} /> Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function TemplatesSection({ templates, loading, editing, onEdit, onSave, onDelete, onNew }: any) {
+  const [selectedType, setSelectedType] = useState<'invoice' | 'quotation' | 'checksheet' | null>(null)
+
+  if (loading) return <div className="text-center py-8">Loading templates...</div>
+
+  const filteredTemplates = selectedType ? templates.filter((t: DocumentTemplate) => t.template_type === selectedType) : templates
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-[#1a4a8d]">Document Templates</h2>
+        <div className="space-x-2">
+          <button onClick={() => onNew('invoice')} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-blue-700 inline-flex">
+            <Plus size={20} /> Invoice Template
+          </button>
+          <button onClick={() => onNew('quotation')} className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-700 inline-flex">
+            <Plus size={20} /> Quotation Template
+          </button>
+          <button onClick={() => onNew('checksheet')} className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-purple-700 inline-flex">
+            <Plus size={20} /> CheckSheet Template
+          </button>
+        </div>
+      </div>
+
+      {editing && (
+        <TemplateForm template={editing} onSave={onSave} onCancel={() => onEdit(null)} />
+      )}
+
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setSelectedType(null)}
+          className={`px-4 py-2 rounded-lg font-semibold ${!selectedType ? 'bg-[#1a4a8d] text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          All Templates
+        </button>
+        <button
+          onClick={() => setSelectedType('invoice')}
+          className={`px-4 py-2 rounded-lg font-semibold ${selectedType === 'invoice' ? 'bg-[#1a4a8d] text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Invoices
+        </button>
+        <button
+          onClick={() => setSelectedType('quotation')}
+          className={`px-4 py-2 rounded-lg font-semibold ${selectedType === 'quotation' ? 'bg-[#1a4a8d] text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Quotations
+        </button>
+        <button
+          onClick={() => setSelectedType('checksheet')}
+          className={`px-4 py-2 rounded-lg font-semibold ${selectedType === 'checksheet' ? 'bg-[#1a4a8d] text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          CheckSheets
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredTemplates.length === 0 ? (
+          <div className="col-span-full text-center py-8 bg-white rounded-lg">
+            <p className="text-gray-500">No templates created yet. Create one to get started.</p>
+          </div>
+        ) : (
+          filteredTemplates.map((template: DocumentTemplate) => (
+            <div key={template.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition border-l-4 border-[#00A8E8]">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#1a4a8d]">{template.name}</h3>
+                    <p className="text-sm text-gray-600 capitalize">Type: {template.template_type}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    template.template_type === 'invoice' ? 'bg-blue-100 text-blue-800' :
+                    template.template_type === 'quotation' ? 'bg-green-100 text-green-800' :
+                    'bg-purple-100 text-purple-800'
+                  }`}>
+                    {template.template_type}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">{template.company_name}</p>
+                <div className="flex gap-2">
+                  <button onClick={() => onEdit(template)} className="flex-1 bg-[#00A8E8] text-white px-3 py-2 rounded font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#0087b8]">
+                    <Edit2 size={16} /> Edit
+                  </button>
+                  <button onClick={() => onDelete(template.id)} className="flex-1 bg-red-600 text-white px-3 py-2 rounded font-semibold text-sm hover:bg-red-700">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
+
+function TemplateForm({ template, onSave, onCancel }: any) {
+  const [formData, setFormData] = useState(template)
+
+  return (
+    <div className="bg-white rounded-lg shadow p-8 border-l-4 border-[#00A8E8]">
+      <h3 className="text-xl font-bold text-[#1a4a8d] mb-6">Edit Document Template</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Template Name</label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            placeholder="e.g., Standard Invoice Template"
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Company Name</label>
+          <input
+            type="text"
+            value={formData.company_name}
+            onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label className="block font-semibold mb-2 text-gray-700">Company Address</label>
+          <textarea
+            value={formData.company_address}
+            onChange={(e) => setFormData({ ...formData, company_address: e.target.value })}
+            className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            rows={3}
+          />
+        </div>
+        <div>
+          <div className="mb-4">
+            <label className="block font-semibold mb-2 text-gray-700">Phone</label>
+            <input
+              type="text"
+              value={formData.company_phone}
+              onChange={(e) => setFormData({ ...formData, company_phone: e.target.value })}
+              className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2 text-gray-700">Email</label>
+            <input
+              type="email"
+              value={formData.company_email}
+              onChange={(e) => setFormData({ ...formData, company_email: e.target.value })}
+              className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 p-6 rounded-lg mb-6 border-2 border-gray-200">
+        <h4 className="font-bold text-gray-700 mb-4">Banking Details</h4>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block font-semibold text-sm mb-2 text-gray-700">Account Name</label>
+            <input
+              type="text"
+              value={formData.bank_account_name}
+              onChange={(e) => setFormData({ ...formData, bank_account_name: e.target.value })}
+              className="w-full border-2 border-gray-300 p-2 rounded text-sm focus:border-[#00A8E8] focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold text-sm mb-2 text-gray-700">Bank Name</label>
+            <input
+              type="text"
+              value={formData.bank_name}
+              onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
+              className="w-full border-2 border-gray-300 p-2 rounded text-sm focus:border-[#00A8E8] focus:outline-none"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block font-semibold text-sm mb-2 text-gray-700">Branch Code</label>
+            <input
+              type="text"
+              value={formData.bank_branch_code}
+              onChange={(e) => setFormData({ ...formData, bank_branch_code: e.target.value })}
+              className="w-full border-2 border-gray-300 p-2 rounded text-sm focus:border-[#00A8E8] focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold text-sm mb-2 text-gray-700">Account Number</label>
+            <input
+              type="text"
+              value={formData.bank_account_number}
+              onChange={(e) => setFormData({ ...formData, bank_account_number: e.target.value })}
+              className="w-full border-2 border-gray-300 p-2 rounded text-sm focus:border-[#00A8E8] focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <label className="block font-semibold mb-2 text-gray-700">VAT Rate (%)</label>
+        <input
+          type="number"
+          value={formData.vat_rate}
+          onChange={(e) => setFormData({ ...formData, vat_rate: parseFloat(e.target.value) || 0 })}
+          className="w-full border-2 border-gray-300 p-2 rounded focus:border-[#00A8E8] focus:outline-none"
+          placeholder="15"
+        />
+      </div>
+
+      <div className="flex gap-4">
+        <button onClick={() => onSave(formData)} className="bg-[#00A8E8] text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[#0087b8]">
+          <Save size={20} /> Save Template
         </button>
         <button onClick={onCancel} className="bg-gray-400 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-500">
           <X size={20} /> Cancel
