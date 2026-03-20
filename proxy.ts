@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export default function proxy(request: NextRequest) {
+export const config = {
+  matcher: ['/admin/:path*'],
+}
+
+export async function proxy(request: NextRequest) {
   const adminToken = request.cookies.get('admin_token')?.value
 
   if (request.nextUrl.pathname.startsWith('/admin')) {
@@ -11,8 +15,4 @@ export default function proxy(request: NextRequest) {
   }
 
   return NextResponse.next()
-}
-
-export const config = {
-  matcher: ['/admin/:path*'],
 }

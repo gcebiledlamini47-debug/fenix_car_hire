@@ -3,14 +3,17 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { Bell } from 'lucide-react'
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [newBookingCount, setNewBookingCount] = useState(0)
 
   useEffect(() => {
     fetchBookings()
+    setupRealtimeSubscription()
   }, [filter])
 
   const fetchBookings = async () => {
@@ -23,18 +26,77 @@ export default function BookingsPage() {
 
       const { data, error } = await query
       if (error) throw error
+      
       setBookings(data || [])
+      
+      // Count new bookings (created in last hour)
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+      const newCount = (data || []).filter(b => new Date(b.created_at) > oneHourAgo).length
+      setNewBookingCount(newCount)
     } catch (err) {
-      console.error('Error fetching bookings:', err)
+      console.error('[v0] Error fetching bookings:', err)
     } finally {
       setLoading(false)
     }
   }
 
+  const setupRealtimeSubscription = () => {
+    const subscription = supabase
+      .channel('bookings-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bookings',
+        },
+        (payload) => {
+          console.log('[v0] New booking received:', payload)
+          // Add new booking to the top of the list
+          setBookings(prev => [payload.new, ...prev])
+          setNewBookingCount(prev => prev + 1)
+          
+          // Show browser notification if available
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('New Booking Submitted', {
+              body: `${payload.new.first_name} ${payload.new.last_name} has submitted a booking`,
+              icon: '/favicon.ico'
+            })
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(subscription)
+    }
+  }
+
+  const isNewBooking = (createdAt: string) => {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+    return new Date(createdAt) > oneHourAgo
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-[#1a4a8d]">Bookings</h1>
+        <div>
+          <h1 className="text-4xl font-bold text-[#1a4a8d]">Bookings</h1>
+          {newBookingCount > 0 && (
+            <div className="flex items-center gap-2 mt-2 text-orange-600 font-semibold">
+              <Bell size={20} />
+              <span>{newBookingCount} new booking{newBookingCount !== 1 ? 's' : ''} submitted</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Filter */}
@@ -73,20 +135,40 @@ export default function BookingsPage() {
                 <th className="text-left py-3 px-6 font-semibold text-gray-700">
                   Return Date
                 </th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-700">Submitted</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-700">Status</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-700">Action</th>
               </tr>
             </thead>
             <tbody>
               {bookings.map((booking) => (
-                <tr key={booking.id} className="border-b hover:bg-gray-50">
+                <tr 
+                  key={booking.id} 
+                  className={`border-b hover:bg-gray-50 ${isNewBooking(booking.created_at) ? 'bg-blue-50' : ''}`}
+                >
                   <td className="py-3 px-6 font-semibold">
-                    {booking.first_name} {booking.last_name}
+                    <div className="flex items-center gap-2">
+                      {isNewBooking(booking.created_at) && (
+                        <span className="inline-block px-2 py-1 bg-orange-500 text-white text-xs font-bold rounded">
+                          NEW
+                        </span>
+                      )}
+                      <span>{booking.first_name} {booking.last_name}</span>
+                    </div>
                   </td>
                   <td className="py-3 px-6 text-sm">{booking.email}</td>
                   <td className="py-3 px-6">{booking.vehicle_name}</td>
-                  <td className="py-3 px-6 text-sm">{booking.pickup_date}</td>
-                  <td className="py-3 px-6 text-sm">{booking.return_date}</td>
+                  <td className="py-3 px-6 text-sm">{formatDate(booking.pickup_date)}</td>
+                  <td className="py-3 px-6 text-sm">{formatDate(booking.return_date)}</td>
+                  <td className="py-3 px-6 text-sm text-gray-600">
+                    {new Date(booking.created_at).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </td>
                   <td className="py-3 px-6">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${

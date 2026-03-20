@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter, useParams } from 'next/navigation'
+import { BookingItemsForm } from '@/components/BookingItemsForm'
 
 export default function BookingDetailPage() {
   const router = useRouter()
@@ -62,8 +63,8 @@ export default function BookingDetailPage() {
     }
   }
 
-  if (loading) return <div>Loading booking...</div>
-  if (!booking) return <div>Booking not found</div>
+  if (loading) return <div className="p-8">Loading booking...</div>
+  if (!booking) return <div className="p-8">Booking not found</div>
 
   return (
     <div>
@@ -216,6 +217,20 @@ export default function BookingDetailPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A8E8]"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Driver License
+                </label>
+                <input
+                  type="text"
+                  value={formData.driver_license || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, driver_license: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A8E8]"
+                />
+              </div>
             </div>
           </div>
 
@@ -228,6 +243,9 @@ export default function BookingDetailPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A8E8]"
             />
           </div>
+
+          {/* Items Management Section */}
+          <BookingItemsForm bookingId={bookingId} />
 
           <div className="flex gap-4">
             <button
