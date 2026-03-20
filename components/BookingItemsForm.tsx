@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trash2, Plus, Edit2 } from 'lucide-react'
+import { Trash2, Plus, Pencil } from 'lucide-react'
 
 interface BookingItem {
   id: string
@@ -169,7 +169,7 @@ export function BookingItemsForm({ bookingId, onItemsChange }: BookingItemsFormP
                       className="text-blue-500 hover:text-blue-700 mr-2 inline-block"
                       title="Edit item"
                     >
-                      <Edit2 size={16} />
+                      <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => handleDeleteItem(item.id)}
