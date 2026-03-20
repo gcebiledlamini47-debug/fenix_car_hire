@@ -12,8 +12,8 @@ export default function Booking() {
     <>
       {/* Hero Section */}
       <Section className="bg-gradient-to-r from-[#1a4a8d] to-[#00A8E8] text-white">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">Book Your Vehicle</h1>
-        <p className="text-xl text-gray-100 max-w-3xl">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4">Book Your Vehicle</h1>
+        <p className="text-base sm:text-xl text-gray-100 max-w-3xl">
           Simple, secure, and fast online booking. Choose your vehicle and complete your reservation in minutes.
         </p>
       </Section>
@@ -27,9 +27,9 @@ export default function Booking() {
 
       {/* Booking Steps */}
       <Section className="bg-white">
-        <h2 className="text-3xl font-bold text-[#1a4a8d] mb-12 text-center">Booking Process</h2>
+        <h2 className="text-2xl sm:text-3xl md:text-3xl font-bold text-[#1a4a8d] mb-8 sm:mb-12 text-center">Booking Process</h2>
         <div className="max-w-4xl mx-auto">
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {[
               {
                 num: '1',
@@ -57,15 +57,15 @@ export default function Booking() {
                 description: 'Visit your chosen branch at the scheduled time to collect your vehicle.',
               },
             ].map((step, idx) => (
-              <div key={idx} className="flex gap-6">
+              <div key={idx} className="flex gap-4 sm:gap-6">
                 <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#00A8E8] text-white font-bold text-lg">
+                  <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#00A8E8] text-white font-bold text-sm sm:text-lg">
                     {step.num}
                   </div>
                 </div>
                 <div className="flex-grow">
-                  <h3 className="text-xl font-bold text-[#1a4a8d] mb-2">{step.title}</h3>
-                  <p className="text-gray-700">{step.description}</p>
+                  <h3 className="text-base sm:text-xl font-bold text-[#1a4a8d] mb-2">{step.title}</h3>
+                  <p className="text-sm sm:text-base text-gray-700">{step.description}</p>
                 </div>
               </div>
             ))}
@@ -75,11 +75,11 @@ export default function Booking() {
 
       {/* Important Information */}
       <Section>
-        <h2 className="text-3xl font-bold text-[#1a4a8d] mb-8 text-center">Important Information</h2>
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold text-[#1a4a8d] mb-4">Requirements</h3>
-            <ul className="space-y-2 text-gray-700">
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#1a4a8d] mb-6 sm:mb-8 text-center">Important Information</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-[#1a4a8d] mb-4">Requirements</h3>
+            <ul className="space-y-2 text-gray-700 text-sm sm:text-base">
               <li>✓ Valid driver's license (2+ years)</li>
               <li>✓ Passport or national ID</li>
               <li>✓ Credit card for deposit</li>
@@ -88,9 +88,9 @@ export default function Booking() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold text-[#1a4a8d] mb-4">Included in Price</h3>
-            <ul className="space-y-2 text-gray-700">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-[#1a4a8d] mb-4">Included in Price</h3>
+            <ul className="space-y-2 text-gray-700 text-sm sm:text-base">
               <li>✓ Full insurance coverage</li>
               <li>✓ Full tank of fuel</li>
               <li>✓ 24/7 roadside support</li>
@@ -99,9 +99,9 @@ export default function Booking() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold text-[#1a4a8d] mb-4">Cancellation Policy</h3>
-            <ul className="space-y-2 text-gray-700">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-[#1a4a8d] mb-4">Cancellation Policy</h3>
+            <ul className="space-y-2 text-gray-700 text-sm sm:text-base">
               <li>✓ Free cancellation up to 24hrs</li>
               <li>✓ 50% refund within 12hrs</li>
               <li>✓ No refund within 6hrs</li>
@@ -109,9 +109,9 @@ export default function Booking() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold text-[#1a4a8d] mb-4">Payment Options</h3>
-            <ul className="space-y-2 text-gray-700">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-[#1a4a8d] mb-4">Payment Options</h3>
+            <ul className="space-y-2 text-gray-700 text-sm sm:text-base">
               <li>✓ Credit/Debit cards</li>
               <li>✓ Mobile money transfers</li>
               <li>✓ Bank transfers</li>
@@ -123,18 +123,18 @@ export default function Booking() {
 
       {/* Support */}
       <Section className="bg-gradient-to-r from-[#00A8E8] to-[#0087b8] text-white text-center">
-        <h2 className="text-2xl font-bold mb-4">Need Help with Your Booking?</h2>
-        <p className="mb-6 text-lg">Contact us anytime - we're here to assist you</p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <h2 className="text-2xl sm:text-3xl md:text-2xl font-bold mb-3 sm:mb-4">Need Help with Your Booking?</h2>
+        <p className="mb-4 sm:mb-6 text-base sm:text-lg">Contact us anytime - we're here to assist you</p>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <a
             href="tel:+26876829797"
-            className="px-6 py-3 bg-white text-[#00A8E8] rounded-lg font-bold hover:bg-gray-100 transition-colors"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-[#00A8E8] rounded-lg font-bold hover:bg-gray-100 transition-colors text-sm sm:text-base"
           >
             Call Us: +268 76829797
           </a>
           <a
             href="mailto:reception@fenix.co.sz"
-            className="px-6 py-3 bg-white text-[#00A8E8] rounded-lg font-bold hover:bg-gray-100 transition-colors"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-[#00A8E8] rounded-lg font-bold hover:bg-gray-100 transition-colors text-sm sm:text-base"
           >
             Email: reception@fenix.co.sz
           </a>
